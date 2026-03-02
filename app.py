@@ -3,109 +3,151 @@ import feedparser
 from datetime import datetime
 import urllib.parse
 
-# --- 設定エリア ---
+# --- PRO CORE CONFIG (プロ仕様設定) ---
 CONFIG = {
-    "site_name": "Ferment-Logic",
-    "editor_name": "Ferment-AI",
-    "editor_avatar": "🧬",
-    "theme_color": "#00FF41", # マトリックス・グリーン
-    "accent_color": "#00E5FF", # ネオンブルー
-    "bg_color": "#0a0a0a",     # ダークモード
-    "news_query": "ヨーグルト OR お茶 OR 飲料 新商品",
-    "greeting": "System Online. 発酵ロジック展開中... 君の脳をアップデートするニュースを抽出したよ。"
+    "site_name": "FERMENT-LOGIC / OS v2.0",
+    "editor_name": "UNIT: FERMENT-AI",
+    "editor_avatar": "⚙️",
+    "primary": "#00FF41",   # Matrix Green
+    "secondary": "#00E5FF", # Cyber Blue
+    "warning": "#FF3D00",   # Deep Orange
+    "bg_black": "#050505",
+    "glass": "rgba(0, 40, 0, 0.2)",
+    # 検索クエリの最適化（紅茶や乳製品を網羅）
+    "news_query": '(ヨーグルト OR 乳製品 OR 乳酸菌) AND (紅茶 OR お茶 OR 飲料) "新発売" OR "トレンド"',
+    "greeting": "[SYSTEM START]... 抽出シーケンス完了。TEA & DAIRY セクターの重要データを統合しました。閲覧を許可します。"
 }
 
-st.set_page_config(page_title=CONFIG["site_name"], page_icon=CONFIG["editor_avatar"], layout="centered")
+st.set_page_config(page_title=CONFIG["site_name"], page_icon="🧬", layout="wide")
 
-# --- AIチックな超華やかカスタムCSS ---
+# --- HYPER CYBER VISUALS (超近未来・メカメカしいデザイン) ---
 st.markdown(f"""
     <style>
-    /* 全体の背景をサイバーな黒に */
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+    /* 全体背景：スキャンライン効果 */
     .stApp {{
-        background-color: {CONFIG["bg_color"]};
-        color: #e0e0e0;
+        background: linear-gradient({CONFIG["bg_black"]}, #0a1a0a);
+        color: {CONFIG["primary"]};
+        font-family: 'Share Tech Mono', monospace;
     }}
-    /* タイトルにネオン発光エフェクト */
+    .stApp::before {{
+        content: " ";
+        position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        z-index: 9999;
+        background-size: 100% 4px, 3px 100%;
+        pointer-events: none;
+    }}
+
+    /* タイトル：軍用HUD風 */
     .stTitle {{
-        color: {CONFIG["theme_color"]} !important;
-        text-shadow: 0 0 10px {CONFIG["theme_color"]}, 0 0 20px {CONFIG["theme_color"]};
-        font-family: 'Courier New', Courier, monospace;
-        text-align: center;
-        border-bottom: 2px solid {CONFIG["theme_color"]};
+        font-size: 3rem !important;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        text-shadow: 2px 2px 0px {CONFIG["bg_black"]}, 0 0 20px {CONFIG["primary"]};
+        border-left: 10px solid {CONFIG["primary"]};
+        padding-left: 20px !important;
+        margin-bottom: 30px !important;
     }}
-    /* ニュースカードをガラス細工風に（グラスモーフィズム） */
+
+    /* ニュースカード：メカニカル装飾 */
     .news-card {{
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
+        background: {CONFIG["glass"]};
+        border: 1px solid {CONFIG["primary"]};
+        border-right: 5px solid {CONFIG["primary"]};
         padding: 20px;
-        border-radius: 20px;
-        border: 1px solid rgba(0, 255, 65, 0.3);
-        margin-bottom: 20px;
-        transition: 0.3s;
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+        clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 95% 100%, 0% 100%);
+    }}
+    .news-card::before {{
+        content: "LOG_DATA_0x" ;
+        position: absolute; top: 5px; right: 10px;
+        font-size: 10px; opacity: 0.5;
     }}
     .news-card:hover {{
-        border: 1px solid {CONFIG["theme_color"]};
-        box-shadow: 0 0 15px {CONFIG["theme_color"]};
-        transform: translateY(-5px);
+        background: rgba(0, 255, 65, 0.1);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
     }}
-    /* タグを点滅させる */
-    .status-tag {{
-        background: transparent;
-        color: {CONFIG["accent_color"]};
-        border: 1px solid {CONFIG["accent_color"]};
-        padding: 2px 12px;
-        border-radius: 50px;
-        font-size: 0.7em;
-        font-family: 'Courier New', sans-serif;
-        text-transform: uppercase;
-        animation: blink 2s infinite;
+
+    /* リンクの装飾 */
+    .news-card a {{
+        color: {CONFIG["secondary"]} !important;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.2rem;
     }}
-    @keyframes blink {{
-        0% {{ opacity: 1; }} 50% {{ opacity: 0.4; }} 100% {{ opacity: 1; }}
+
+    /* AIコメントエリア */
+    .ai-box {{
+        border: 2px dashed {CONFIG["secondary"]};
+        padding: 15px;
+        background: rgba(0, 229, 255, 0.05);
+        margin-bottom: 40px;
     }}
+
+    /* スクロールバー */
+    ::-webkit-scrollbar {{ width: 5px; }}
+    ::-webkit-scrollbar-thumb {{ background: {CONFIG["primary"]}; }}
     </style>
     """, unsafe_allow_html=True)
 
-# ヘッダー表示
-st.title(f" {CONFIG['site_name']}")
-st.write(f"<p style='text-align: center; color: {CONFIG['theme_color']}; font-family: monospace;'>>> ANALYZING RECENT FERMENTATION TRENDS...</p>", unsafe_allow_html=True)
+# --- 画面構成 ---
 
-# AI編集長エリア
-with st.expander("✨ AI-EDITOR STATUS: ONLINE", expanded=True):
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        st.write(f"<h1 style='text-align:center;'>{CONFIG['editor_avatar']}</h1>", unsafe_allow_html=True)
-    with col2:
-        st.write(f"**{CONFIG['editor_name']}**: \n\n {CONFIG['greeting']}")
+# 上部ステータスバー
+col_l, col_r = st.columns([2, 1])
+with col_l:
+    st.title(f"{CONFIG['site_name']}")
+with col_r:
+    st.write(f"""
+    <div style="text-align:right; font-size:12px; border:1px solid {CONFIG['primary']}; padding:5px;">
+    STATUS: NOMINAL<br>
+    AUTH: ROOT_USER<br>
+    LOCAL_TIME: {datetime.now().strftime('%H:%M:%S')}
+    </div>
+    """, unsafe_allow_html=True)
 
-# ニュース取得
-@st.cache_data(ttl=3600)
-def fetch_news():
+# AIエージェント
+st.markdown(f"""
+<div class="ai-box">
+    <span style="color:{CONFIG['secondary']}; font-weight:bold;">[ {CONFIG['editor_name']} ]</span><br>
+    {CONFIG['greeting']}
+</div>
+""", unsafe_allow_html=True)
+
+# ニュース取得 (件数を15件に増加)
+@st.cache_data(ttl=1800) # 30分キャッシュで鮮度重視
+def fetch_news_pro():
     encoded_query = urllib.parse.quote(CONFIG["news_query"])
     url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ja&gl=JP&ceid=JP:ja"
     try:
         feed = feedparser.parse(url)
-        return feed.entries[:10]
+        return feed.entries[:15] # 15件まで拡張
     except:
         return []
 
-news_items = fetch_news()
+items = fetch_news_pro()
 
-# カード表示
-for entry in news_items:
-    st.markdown(f"""
-    <div class="news-card">
-        <span class="status-tag">● AI_LOGIC_EXTRACTED</span>
-        <h3 style="margin: 15px 0 10px 0;">
-            <a href="{entry.link}" target="_blank" style="text-decoration:none; color:{CONFIG['theme_color']};">
-                {entry.title}
-            </a>
-        </h3>
-        <p style="font-size:0.8em; color:#aaa; font-family: monospace;">
-            TIMESTAMP: {entry.get('published', 'N/A')}<br>
-            [COMMENT]: 人工知能による解析の結果、本記事は君の健康マトリックスに正の影響を与えると推論される。
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+# ニュースグリッド表示（PCでは2列、スマホでは1列に自動調整）
+col1, col2 = st.columns(2)
 
-st.write("<p style='text-align: center; color: #333;'>- END OF ENCRYPTED DATA -</p>", unsafe_allow_html=True)
+for i, entry in enumerate(items):
+    target_col = col1 if i % 2 == 0 else col2
+    with target_col:
+        st.markdown(f"""
+        <div class="news-card">
+            <div style="font-size:10px; color:{CONFIG['primary']};">>> ANALYSIS_COMPLETE: SECTOR_{i+1:02}</div>
+            <h3 style="margin:10px 0;"><a href="{entry.link}" target="_blank">{entry.title}</a></h3>
+            <div style="font-size:12px; color:#888; border-top:1px solid #333; padding-top:10px;">
+                <span style="color:{CONFIG['primary']};">[REPORT]</span> 
+                紅茶・ヨーグルト含有成分によるバイオメトリクス向上を検知。即時の摂取を推奨。
+            </div>
+            <div style="text-align:right; font-size:10px; margin-top:10px; opacity:0.6;">
+                REF: {entry.get('published', 'UNKNOWN_DATE')}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+st.write(f"<div style='text-align:center; padding:50px; color:{CONFIG['primary']}; opacity:0.3;'>-- ACCESSING GLOBAL FERMENTATION GRID --</div>", unsafe_allow_html=True)
