@@ -1,23 +1,22 @@
 import streamlit as st
 import feedparser
 from datetime import datetime
+import urllib.parse # 追加：日本語をURL用に変換する道具
 
-# --- 設定エリア（ここを書き換えるだけでカスタマイズ可能！） ---
+# --- 設定エリア ---
 CONFIG = {
-    "site_name": "Ferment-Logic",
-    "editor_name": "Ferment (ファーメント)",
+    "site_name": "発酵論理",
+    "editor_name": "Ferment(ファーメント)",
     "editor_avatar": "🔬",
-    "theme_color": "#4CAF50",  # お茶の緑
-    "accent_color": "#00E5FF", # サイバーブルー
-    "bg_color": "#f8fff9",     # ミルキーホワイト
-    "news_query": "ヨーグルト OR お茶 OR 飲料 新商品",
-    "greeting": "Good morning. 発酵プロセス完了。君の脳内にシナジーを生むニュースをデプロイしたよ。"
+    "theme_color": "#4CAF50",
+    "accent_color": "#00E5FF",
+    "bg_color": "#f8fff9",
+    "news_query": "ヨーグルト OR お茶 OR 飲料 新商品", # ここが原因でした
+    "greeting": "おはようございます。発酵プロセス完了。君の脳内にシナジーを生むニュースをデプロイしたよ。"
 }
 
-# ページ基本設定
 st.set_page_config(page_title=CONFIG["site_name"], page_icon=CONFIG["editor_avatar"])
 
-# デザインの注入
 st.markdown(f"""
     <style>
     .stApp {{ background-color: {CONFIG["bg_color"]}; }}
@@ -34,24 +33,29 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# ヘッダー
 st.title(f"🧬 {CONFIG['site_name']}")
-st.caption(f"Status: Fermenting... | {datetime.now().strftime('%Y/%m/%d %H:%M')}")
+st.caption(f"状態:発酵中... | {datetime.now().strftime('%Y/%m/%d %H:%M')}")
 
-# AI編集長のメッセージ
 with st.chat_message("ai", avatar=CONFIG["editor_avatar"]):
     st.write(f"**{CONFIG['editor_name']}**: {CONFIG['greeting']}")
 
-# ニュース取得
-@st.cache_data(ttl=3600) # 1時間はキャッシュを保持して高速化
+@st.cache_data(ttl=3600)
 def fetch_news():
-    url = f"https://news.google.com/rss/search?q={CONFIG['news_query']}&hl=ja&gl=JP&ceid=JP:ja"
-    feed = feedparser.parse(url)
-    return feed.entries[:10]
+    # 日本語をURLで使える形式（%xx...）に変換
+    encoded_query = urllib.parse.quote(CONFIG["news_query"])
+    url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ja&gl=JP&ceid=JP:ja"
+    
+    try:
+        feed = feedparser.parse(url)
+        return feed.entries[:10]
+    except Exception as e:
+        return []
 
 news_items = fetch_news()
 
-# ニュースカードの生成
+if not news_items:
+    st.warning("ニュースの抽出に一時的に失敗しました。しばらく待ってから再読み込みしてください。")
+
 for entry in news_items:
     with st.container():
         st.markdown(f"""
@@ -61,7 +65,6 @@ for entry in news_items:
                 <a href="{entry.link}" target="_blank" style="text-decoration:none; color:#333;">{entry.title}</a>
             </h3>
             <p style="font-size:0.85em; color:#666; line-height:1.4;">
-                {entry.published}<br>
                 🔍 {CONFIG['editor_name']}分析：業界のトレンドを揺るがすポテンシャルを感知。
             </p>
         </div>
