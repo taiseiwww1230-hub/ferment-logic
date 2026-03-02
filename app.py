@@ -176,4 +176,3 @@ for entry in items:
 
 # フッター
 st.write(f"<p style='text-align:center; color:#222; font-family:Orbitron; font-size:9px; padding:50px;'>To the Edge of the Universe. | FERMENT-LOGIC v8.0</p>", unsafe_allow_html=True)
-    
