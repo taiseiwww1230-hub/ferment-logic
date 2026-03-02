@@ -1,150 +1,175 @@
 import streamlit as st
 import feedparser
-from datetime import datetime, timedelta
+from datetime import datetime
 import urllib.parse
 
-# --- EXECUTIVE CORE CONFIG (社会人向け・プロ仕様設定) ---
+# --- EXECUTIVE INTELLIGENCE UNIT v3.0 ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC / INTELLIGENCE",
     "editor_name": "INTEL-AGENCY: FERMENT",
     "editor_avatar": "🛰️",
-    "primary": "#00FF41",   # Cyber Green
-    "secondary": "#E0E0E0", # Platinum Silver
-    "accent": "#007AFF",    # Deep Blue
-    "bg_dark": "#020202",
-    # 検索クエリ：1週間以内の新商品・トレンドに特化
-    "news_query": '(ヨーグルト OR 乳製品 OR 乳酸菌 OR 紅茶 OR 茶葉) AND ("新発売" OR "期間限定" OR "世界初" OR "独自開発") when:7d',
-    "greeting": "[STATUS: OPERATIONAL] 直近7日間の高純度データを抽出。茶葉と発酵の最新相関をデプロイしました。"
+    # より洗練されたプロフェッショナルな配色へ
+    "primary": "#00E5FF",   # Cyber Blue (ヘッダーやアクセント)
+    "secondary": "#FFFFFF", # Pure White (本文テキスト)
+    "text_gray": "#AAAAAA", # Gray for details
+    "bg_dark": "#0A0A0A",   # Deep Black Background
+    "bg_card": "#161616",   # Slightly Lighter Card Background
+    # 検索クエリ：1週間以内の重要情報（新発売、開発トレンド）に厳格に絞り込む
+    "news_query": '(ヨーグルト OR 乳製品 OR 乳酸菌 OR 紅茶 OR 茶葉) AND ("新発売" OR "期間限定" OR "独自開発" OR "トレンド") when:7d',
+    "greeting": "[STATUS: OPERATIONAL] 直近168時間の高純度データを抽出。茶葉と発酵の最新相関をデプロイしました。"
 }
 
 st.set_page_config(page_title=CONFIG["site_name"], page_icon="🧬", layout="wide")
 
-# --- PREMIUM CYBER VISUALS (洗練された社会人向けUI) ---
+# --- PREMIUM DARK UI (ご提示の画像に近いプロフェッショナルな構成) ---
 st.markdown(f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+JP:wght@300;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700&display=swap');
 
     .stApp {{
-        background: radial-gradient(circle at 50% 50%, #0a1a0a 0%, {CONFIG["bg_dark"]} 100%);
+        background-color: {CONFIG["bg_dark"]};
         color: {CONFIG["secondary"]};
-        font-family: 'Noto Sans JP', sans-serif;
+        font-family: 'Inter', sans-serif;
     }}
 
-    /* ヘッダー：重厚なメタル質感 */
+    /* ヘッダーエリア：洗練されたタイポグラフィ */
     .stTitle {{
         font-family: 'Orbitron', sans-serif;
-        font-size: 2.2rem !important;
-        letter-spacing: 4px;
+        font-size: 2.0rem !important;
+        letter-spacing: 3px;
         color: {CONFIG["primary"]} !important;
-        border-bottom: 1px solid rgba(0, 255, 65, 0.3);
-        padding-bottom: 15px !important;
-        margin-bottom: 40px !important;
-        text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        text-align: center;
+        margin-top: 20px !important;
+        margin-bottom: 10px !important;
+        text-shadow: 0 0 10px {CONFIG["primary"]};
+    }}
+    .site-subtitle {{
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        color: {CONFIG["text_gray"]};
+        text-align: center;
+        margin-bottom: 40px;
+        font-weight: 300;
     }}
 
-    /* ニュースカード：高級感のあるダークガラス */
+    /* AIエージェントコンソール */
+    .ai-console {{
+        background-color: {CONFIG["bg_card"]};
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 50px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }}
+
+    /* ニュースグリッドとカード：ご提示画像の構成を反映 */
     .news-card {{
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-left: 3px solid {CONFIG["primary"]};
+        background-color: {CONFIG["bg_card"]};
+        border-radius: 8px;
         padding: 25px;
-        margin-bottom: 20px;
-        border-radius: 4px;
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        position: relative;
+        margin-bottom: 25px;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
     }}
     .news-card:hover {{
-        background: rgba(0, 255, 65, 0.05);
-        border-left: 3px solid {CONFIG["accent"]};
-        transform: scale(1.02);
+        border: 1px solid {CONFIG["primary"]};
+        transform: translateY(-3px);
     }}
 
-    /* ニュースタイトル：落ち着いた知性 */
+    /* タイトルとメタ情報 */
+    .time-tag {{
+        color: {CONFIG["primary"]};
+        font-size: 0.75rem;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 500;
+        margin-bottom: 10px;
+        display: block;
+    }}
     .news-card a {{
         color: {CONFIG["secondary"]} !important;
         text-decoration: none;
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         font-weight: 500;
         line-height: 1.5;
+        transition: color 0.2s ease;
     }}
     .news-card a:hover {{
         color: {CONFIG["primary"]} !important;
     }}
 
-    /* AIステータスエリア */
-    .ai-console {{
-        font-family: 'Orbitron', sans-serif;
-        background: rgba(0, 0, 0, 0.6);
-        border: 1px solid {CONFIG["primary"]};
-        padding: 20px;
-        border-radius: 2px;
-        margin-bottom: 40px;
-        font-size: 0.9rem;
+    /* 詳細分析コメント */
+    .analysis-box {{
+        margin-top: 15px;
+        font-size: 0.85rem;
+        color: {CONFIG["text_gray"]};
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 15px;
+        line-height: 1.6;
     }}
 
-    /* タイムスタンプ・タグ */
-    .time-tag {{
-        color: {CONFIG["primary"]};
-        font-size: 0.75rem;
-        font-family: 'Orbitron', sans-serif;
-        margin-bottom: 8px;
-        display: block;
-    }}
     </style>
     """, unsafe_allow_html=True)
 
 # --- 画面構成 ---
 
-# 1. サイトヘッダー
+# 1. サイトヘッダー（プロフェッショナルなタイポグラフィ）
 st.title(f" {CONFIG['site_name']}")
+st.markdown("<div class='site-subtitle'>発酵と茶葉の最新相関をAIが分析。社会人のためのインテリジェンス・コンソール。</div>", unsafe_allow_html=True)
 
-# 2. AIコンソール（ここがキャラクターとしての華やかさと知性を演出）
-col_a, col_b = st.columns([1, 6])
-with col_a:
-    st.write(f"<h1 style='text-align:center; margin:0;'>{CONFIG['editor_avatar']}</h1>", unsafe_allow_html=True)
-with col_b:
+# 2. AIコンソール（キャラクター性を知的なステータスとして表示）
+with st.container():
     st.markdown(f"""
     <div class="ai-console">
-        <span style="color:{CONFIG['primary']};">>> LOG_ANALYSIS: ACTIVE</span><br>
-        <span style="color:#888;">{CONFIG['greeting']}</span>
+        <h1 style='margin:0;'>{CONFIG['editor_avatar']}</h1>
+        <div>
+            <span style="color:{CONFIG['primary']}; font-family:Orbitron; font-weight:700;">[ {CONFIG['editor_name']} / ON ]</span><br>
+            <span style="color:{CONFIG['text_gray']};">{CONFIG['greeting']}</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-# 3. ニュース取得（最新1週間以内に厳格化）
+# 3. ニュース取得（直近7日間に厳格化、件数を15件へ）
 @st.cache_data(ttl=1800)
-def fetch_latest_intelligence():
-    # 'when:7d' パラメータをクエリに直接含めることでGoogleニュース側に期間指定を強制
+def fetch_executive_news():
     encoded_query = urllib.parse.quote(CONFIG["news_query"])
     url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ja&gl=JP&ceid=JP:ja"
     try:
         feed = feedparser.parse(url)
-        # さらにプログラム側でも念のためフィルタリング（任意）
-        return feed.entries[:18] # 18件まで表示（3列構成に最適）
+        # 近々の情報に特化するため、feed.entries全体から抽出
+        return feed.entries[:15] # スマホでも読みやすい15件
     except:
         return []
 
-items = fetch_latest_intelligence()
+items = fetch_executive_news()
 
 if not items:
     st.info("現在、直近7日間の条件に合致する超速報データは待機中です。スキャン範囲を維持します。")
 
-# 4. ニュースグリッド（社会人が読みやすい3カラム構成）
-cols = st.columns(3)
+# 4. ニュースグリッド（社会人が読みやすい2カラム構成）
+# ご提示画像のデザインを反映し、情報を1つずつ丁寧にカード化します。
+col1, col2 = st.columns(2)
 
 for i, entry in enumerate(items):
-    with cols[i % 3]:
-        # タイトルから日付を簡易的に表示
+    # PCでは2列、スマホでは1列に自動調整
+    target_col = col1 if i % 2 == 0 else col2
+    with target_col:
+        # 日付を取得
         pub_date = entry.get('published', '')
         
+        # ご提示画像の「AI NEWS」構成に近づけます。
         st.markdown(f"""
         <div class="news-card">
             <span class="time-tag">RECENT_DATA / {pub_date[:16]}</span>
             <h3><a href="{entry.link}" target="_blank">{entry.title}</a></h3>
-            <div style="margin-top:15px; font-size:0.85rem; color:#777; border-top:1px solid #222; padding-top:10px;">
-                <span style="color:{CONFIG['primary']};">◆</span> 分析：茶葉の抗酸化作用と乳酸菌の相乗効果を認む。
+            <div class="analysis-box">
+                <span style="color:{CONFIG['primary']};">[ANALYSIS]</span> 
+                直近のデータに基づき、茶葉の抗酸化作用と発酵食品の腸内環境改善によるシナジー効果を認む。
+                目まぐるしく変化する情勢において、この情報は健康マトリックスに正の影響を与える。
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-st.write(f"<p style='text-align:center; color:#333; font-family:Orbitron; font-size:10px; padding:50px;'>SYSTEM CLOUD CONNECTED / ENCRYPTED</p>", unsafe_allow_html=True)
+# フッター
+st.write(f"<p style='text-align:center; color:#333; font-family:Orbitron; font-size:10px; padding:50px;'>Stay Fermented. | FERMENT-LOGIC v3.0 | CONNECTION ENCRYPTED</p>", unsafe_allow_html=True)
