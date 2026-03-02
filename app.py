@@ -4,64 +4,81 @@ from datetime import datetime
 import urllib.parse
 import random
 
-# --- EXECUTIVE TERMINAL v8.0 (Ultimate Starfield) ---
+# --- EXECUTIVE TERMINAL v9.0 (Cosmic Cherry Blossom) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_name": "CORE-AI: FERMENT",
     "editor_avatar": "🛰️",
-    "primary": "#00FF41",   
+    # 桜の背景とネオンのコントラストを調整
+    "primary": "#00FF41",   # Matrix Green
     "secondary": "#FFFFFF", 
     "neon_blue": "#00E5FF", 
     "neon_pink": "#FF00E0", 
-    "space_black": "#010101", 
+    "bg_fallback": "#0A0A0A", # 画像読み込み失敗時の背景
     "news_query": '(ヨーグルト OR 乳製品 OR 乳酸菌 OR 紅茶 OR 茶葉) AND ("新発売" OR "期間限定" OR "独自開発" OR "トレンド") when:7d',
-    "greeting": "[SYSTEM: ONLINE] 168hデータ同期完了。無限の星界から最新の知性を抽出しました。"
+    "greeting": "[SYSTEM: ONLINE] 168hデータ同期完了。桜舞う世界で最新の知性を抽出しました。"
 }
 
 st.set_page_config(page_title=CONFIG["site_name"], page_icon="🧬", layout="centered")
 
-# --- ULTIMATE SPACE UI (満天の星空と流星のエフェクト) ---
+# --- VISUAL INTEGRATION (桜背景とネオンUIの融合) ---
+# ご提示いただいた画像を背景に設定し、UIの可読性を確保するための工夫を凝らします。
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700&family=Roboto+Mono:wght@300&display=swap');
 
-    /* 背景：圧倒的な星の量と奥行き */
+    /* 背景：指定された画像を全画面表示し、UIとの間に薄い霧（グラデーション）を配置 */
     .stApp {{
-        background-color: {CONFIG["space_black"]};
+        background-color: {CONFIG["bg_fallback"]};
         background-image: 
-            /* レイヤー1: 小さく遠い星 */
-            radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
-            radial-gradient(1.5px 1.5px at 40px 70px, #fff, rgba(0,0,0,0)),
-            radial-gradient(1px 1px at 50% 10%, #ddd, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 80% 30%, #fff, rgba(0,0,0,0)),
-            radial-gradient(1px 1px at 10% 80%, #eee, rgba(0,0,0,0)),
-            radial-gradient(1.5px 1.5px at 90% 85%, #fff, rgba(0,0,0,0)),
-            radial-gradient(1px 1px at 25% 45%, #ddd, rgba(0,0,0,0)),
-            /* レイヤー2: 密集した星屑 */
-            radial-gradient(white, rgba(255,255,255,.2) 1.5px, transparent 2.5px),
-            radial-gradient(white, rgba(255,255,255,.1) 1px, transparent 2px),
-            /* レイヤー3: 遠くの銀河のような霧 */
-            radial-gradient(at 10% 10%, rgba(0, 255, 65, 0.05) 0px, transparent 40%),
-            radial-gradient(at 90% 90%, rgba(0, 229, 255, 0.05) 0px, transparent 40%);
-        
-        /* 星屑のループ設定 */
-        background-size: 150px 150px, 250px 250px, 200px 200px, 300px 300px, 350px 350px, 400px 400px, 220px 220px, 180px 180px, 280px 280px, 100% 100%, 100% 100%;
+            /* UIの下に薄い暗色のグラデーションを配置し、可読性を向上 */
+            linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)),
+            /* ご提示いただいた画像を背景に設定。URLは適宜書き換えてください。 */
+            url('{"https://lh3.googleusercontent.com/u/0/drive-viewer/AEYmBYRo-P_yXN_H8448H_rA-N6N_x0z_bE_V4_R_E8=w1920-h1080"}'); 
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         color: {CONFIG["secondary"]};
         font-family: 'Inter', sans-serif;
     }}
+    /* 全体に薄く走る走査線（メカメカしさ）を維持 */
+    .stApp::before {{
+        content: " ";
+        position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+        z-index: 9999;
+        background-size: 100% 4px;
+        pointer-events: none;
+        opacity: 0.3;
+    }}
 
-    /* タイトル：星空に負けない発光 */
+    /* ヘッダー：ネオン管の発光を維持 */
     .stTitle {{
         font-family: 'Orbitron', sans-serif;
         font-size: 1.6rem !important;
-        letter-spacing: 4px;
+        letter-spacing: 3px;
         color: {CONFIG["secondary"]} !important;
         text-align: center;
         margin-top: 15px !important;
-        text-shadow: 0 0 10px {CONFIG["neon_blue"]}, 0 0 30px {CONFIG["neon_blue"]};
+        text-shadow: 
+            0 0 5px {CONFIG["secondary"]},
+            0 0 10px {CONFIG["neon_blue"]},
+            0 0 20px {CONFIG["neon_blue"]};
     }}
 
-    /* 衛星エージェント：宇宙に漂う浮遊感 */
+    .ai-status-bar {{
+        font-family: 'Roboto Mono', monospace;
+        font-size: 9px;
+        color: {CONFIG["primary"]};
+        text-align: center;
+        border: 1px solid rgba(0, 255, 65, 0.2);
+        padding: 3px;
+        margin-bottom: 20px;
+        background: rgba(0, 255, 65, 0.05);
+        opacity: 0.8;
+    }}
+
+    /* 衛星エージェント：宇宙に漂う浮遊感を維持 */
     .ai-agent-container {{
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid rgba(0, 229, 255, 0.2);
@@ -84,9 +101,9 @@ st.markdown(f"""
         100% {{ transform: translateY(0px); }}
     }}
 
-    /* ニュースカード：一覧性重視のサイバーパネル */
+    /* ニュースカード：一覧性重視のサイバーパネルを維持しつつ、背景を少し透けさせる */
     .news-card {{
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 0, 0, 0.4); /* 背景をより暗くし、可読性を確保 */
         backdrop-filter: blur(4px);
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-left: 3px solid {CONFIG["primary"]};
@@ -96,9 +113,9 @@ st.markdown(f"""
         transition: 0.3s;
     }}
     .news-card:hover {{
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(0, 229, 255, 0.05); /* ホバー時の滲みをブルーへ */
         border-left: 3px solid {CONFIG["neon_pink"]};
-        box-shadow: 0 0 25px rgba(0, 255, 65, 0.2);
+        box-shadow: 0 0 25px rgba(0, 229, 255, 0.2);
     }}
 
     .time-tag {{
@@ -128,7 +145,7 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 画面構成 (Final Cosmic Edition) ---
+# --- 画面構成 (Cosmic Cherry Blossom Edition) ---
 
 st.title(f"{CONFIG['site_name']}")
 st.markdown(f"<div style='text-align:center; font-family:Roboto Mono; font-size:10px; color:{CONFIG['primary']}; margin-bottom:20px; letter-spacing:2px;'>STARDUST_DENSITY: MAX // SAT_LINK: STABLE</div>", unsafe_allow_html=True)
@@ -147,7 +164,7 @@ with st.container():
 
 # ニュース取得
 @st.cache_data(ttl=1800)
-def fetch_news_final():
+def fetch_news_cosmic():
     encoded_query = urllib.parse.quote(CONFIG["news_query"])
     url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ja&gl=JP&ceid=JP:ja"
     try:
@@ -156,9 +173,9 @@ def fetch_news_final():
     except:
         return []
 
-items = fetch_news_final()
+items = fetch_news_cosmic()
 
-# ニュースリスト
+# ニュースリスト（高密度設計）
 for entry in items:
     pub_date = entry.get('published', '')
     accuracy = random.randint(98, 99)
@@ -175,4 +192,4 @@ for entry in items:
     """, unsafe_allow_html=True)
 
 # フッター
-st.write(f"<p style='text-align:center; color:#222; font-family:Orbitron; font-size:9px; padding:50px;'>To the Edge of the Universe. | FERMENT-LOGIC v8.0</p>", unsafe_allow_html=True)
+st.write(f"<p style='text-align:center; color:#444; font-family:Orbitron; font-size:9px; padding:50px;'>To the Edge of the Universe with Sakura. | FERMENT-LOGIC v9.0</p>", unsafe_allow_html=True)
