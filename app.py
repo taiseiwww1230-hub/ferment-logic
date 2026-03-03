@@ -5,7 +5,7 @@ import urllib.parse
 import random
 import time
 
-# --- v24.0 ETERNAL PULSE (完全統合モデル) ---
+# --- v24.2 FINAL_PULSE_INTEGRATION (究極の安定・鼓動モデル) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -22,45 +22,39 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="centered")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: 現存ロジックを維持しつつ「ライブパルス」を注入 ---
+# --- CSS: デバッグ済み・ライブパルス注入ロジック ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono&display=swap');
     
-    /* 1. 背景 & ライブパルス (::beforeで光の膜を重ねる) */
+    /* 1. 背景の強制透過とパルス層の再構築 */
+    /* stAppViewContainer 自体の背景を殺して、背後を見せる */
     [data-testid="stAppViewContainer"] {{
-        background-color: #000804 !important;
-        background-image: 
-            radial-gradient(circle at 50% -20%, rgba(0, 229, 255, 0.2), transparent 70%),
-            linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px) !important;
-        background-size: 100% 100%, 30px 30px, 30px 30px !important;
-        background-attachment: fixed !important;
-        /* グリッド自体の微細な明滅 */
-        animation: grid-glow 10s linear infinite;
+        background: transparent !important;
     }}
 
+    /* 最下層にアニメーション付き背景を固定配置 */
     [data-testid="stAppViewContainer"]::before {{
         content: "";
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        background: radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.05), transparent 80%);
-        pointer-events: none;
-        z-index: -1;
-        animation: pulse-aura 4s ease-in-out infinite alternate;
+        background-color: #000804 !important;
+        background-image: 
+            radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.15), transparent 80%),
+            linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px) !important;
+        background-size: 100% 100%, 30px 30px, 30px 30px !important;
+        z-index: -2;
+        /* 背景全体の明滅アニメーション */
+        animation: global-pulse 6s ease-in-out infinite alternate !important;
     }}
 
-    @keyframes pulse-aura {{
-        0% {{ opacity: 0.2; transform: scale(1); }}
-        100% {{ opacity: 0.6; transform: scale(1.1); }}
+    @keyframes global-pulse {{
+        0% {{ filter: brightness(0.7) contrast(1); opacity: 0.8; }}
+        100% {{ filter: brightness(1.2) contrast(1.2); opacity: 1; }}
     }}
 
-    @keyframes grid-glow {{
-        0%, 100% {{ filter: brightness(1); }}
-        50% {{ filter: brightness(1.15); }}
-    }}
-
-    /* 2. タイトル */
+    /* 2. タイトル：サイズを抑えつつ発光 */
     .title {{
         color: white !important;
         font-family: 'Orbitron';
@@ -83,7 +77,7 @@ st.markdown(f"""
         50% {{ transform: translateY(-20px) rotate(10deg); }}
     }}
 
-    /* 4. ニュースカード & ホバー */
+    /* 4. ニュースカード & ホバーアクション (正常動作維持) */
     .news-card {{
         background: rgba(255, 255, 255, 0.04);
         border-left: 5px solid {CONFIG["primary"]};
@@ -96,7 +90,7 @@ st.markdown(f"""
     @keyframes fade-in {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 
     .news-card:hover {{
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.12);
         border-left: 5px solid {CONFIG["neon_pink"]};
         transform: translateX(10px);
         box-shadow: 0 0 20px rgba(255, 0, 224, 0.2);
@@ -109,7 +103,7 @@ st.markdown(f"""
         text-decoration: none;
     }}
 
-    /* 5. グリッチボタン */
+    /* 5. グリッチボタン (正常動作維持) */
     .stButton > button {{
         background: transparent !important;
         color: {CONFIG["primary"]} !important;
@@ -118,7 +112,6 @@ st.markdown(f"""
         width: 100% !important;
         height: 50px !important;
         transition: 0.2s;
-        margin-top: 20px;
     }}
     .stButton > button:hover {{
         background: {CONFIG["primary"]} !important;
@@ -136,7 +129,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# --- RENDERING ---
+# --- RENDERING ENGINE ---
 st.markdown(f'<div class="title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
 st.markdown(f'<div class="satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
 
@@ -153,7 +146,7 @@ all_items = fetch_news()
 JST = timezone(timedelta(hours=+9), 'JST')
 display_items = all_items[:st.session_state.display_count]
 
-# ニュースカード描画
+# ニュースカード描画（日付とホバーを確実に保持）
 for i, entry in enumerate(display_items):
     try:
         ts = time.mktime(entry.published_parsed)
@@ -171,9 +164,11 @@ for i, entry in enumerate(display_items):
     """, unsafe_allow_html=True)
 
 # 最下部のボタン
+st.write("")
 if st.session_state.display_count < len(all_items):
     if st.button(">> LOAD_MORE_INTELLIGENCE"):
         st.session_state.display_count += CONFIG["step_display"]
         st.rerun()
 else:
     st.markdown(f"<p style='text-align:center; color:{CONFIG['neon_pink']}; font-family:Orbitron; padding-top:20px;'>-- END OF STREAM --</p>", unsafe_allow_html=True)
+    
