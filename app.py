@@ -5,7 +5,7 @@ import urllib.parse
 import random
 import time
 
-# --- EXECUTIVE TERMINAL v21.0 (Infinite Intel) ---
+# --- EXECUTIVE TERMINAL v22.0 (Neon Response) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_name": "CORE_INTELLIGENCE",
@@ -20,11 +20,10 @@ CONFIG = {
 
 st.set_page_config(page_title=CONFIG["site_name"], page_icon="🧬", layout="centered")
 
-# --- INITIALIZE SESSION STATE (表示件数の管理) ---
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: COMPACT & INTERACTIVE ---
+# --- CSS: NEON INTERACTION & COMPACT UI ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@500&display=swap');
@@ -63,12 +62,23 @@ st.markdown(f"""
         50% {{ transform: translate(0, -20px) rotate(0deg); }}
     }}
 
+    /* ニュースカードの基本スタイル */
     .news-card {{
         background: rgba(255, 255, 255, 0.04) !important;
         border-left: 5px solid {CONFIG["primary"]} !important;
         padding: 15px;
         margin-bottom: 12px;
         border-radius: 2px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important; /* なめらかな変化 */
+        cursor: pointer;
+    }}
+
+    /* ★ ニュースカード：ホバー時の反応を追加 ★ */
+    .news-card:hover {{
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-left: 5px solid {CONFIG["neon_pink"]} !important; /* ピンクに変化 */
+        transform: translateX(8px) !important; /* 右に少しズレる躍動感 */
+        box-shadow: 0 0 20px rgba(255, 0, 224, 0.2) !important; /* ピンクの発光 */
     }}
 
     .news-card a {{
@@ -76,9 +86,14 @@ st.markdown(f"""
         font-size: 1.1rem !important;
         font-weight: 800 !important;
         text-decoration: none !important;
+        transition: color 0.3s !important;
+    }}
+    
+    /* ホバー時にリンクの色も微調整 */
+    .news-card:hover a {{
+        color: #FFFFFF !important;
     }}
 
-    /* Streamlit標準ボタンのサイバーカスタマイズ */
     div.stButton > button {{
         background-color: transparent !important;
         color: {CONFIG["primary"]} !important;
@@ -90,12 +105,10 @@ st.markdown(f"""
         padding: 10px 0 !important;
         transition: 0.3s !important;
         text-shadow: 0 0 10px {CONFIG["primary"]} !important;
-        box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important;
     }}
     div.stButton > button:hover {{
         background-color: {CONFIG["primary"]} !important;
         color: black !important;
-        box-shadow: 0 0 30px {CONFIG["primary"]} !important;
     }}
 
     header, footer {{ visibility: hidden !important; }}
@@ -106,11 +119,10 @@ st.markdown(f"""
 st.markdown(f'<div class="absolute-title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
 st.markdown(f'<div class="moving-satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
 
-# --- DATA FETCHING ---
+# --- DATA ---
 @st.cache_data(ttl=1800)
 def fetch_all_data():
     q = urllib.parse.quote(CONFIG["news_query"])
-    # 拡張性を考え、多めに取得（RSSの最大付近まで）
     f = feedparser.parse(f"https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja")
     entries = f.entries
     entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
@@ -119,7 +131,6 @@ def fetch_all_data():
 all_items = fetch_all_data()
 JST = timezone(timedelta(hours=+9), 'JST')
 
-# 現在のセッション状態に応じた件数を表示
 display_items = all_items[:st.session_state.display_count]
 
 for entry in display_items:
@@ -128,6 +139,7 @@ for entry in display_items:
         dt = datetime.fromtimestamp(ts, timezone.utc).astimezone(JST).strftime('%Y/%m/%d %H:%M')
     except: dt = "N/A"
 
+    # HTML構造内に hover の反応が反映されるようにクラスを維持
     st.markdown(f"""
     <div class="news-card">
         <div style="color:{CONFIG['neon_pink']}; font-family:'Orbitron'; font-size:0.7rem;">INTEL_LOG // {dt} JST</div>
@@ -136,10 +148,10 @@ for entry in display_items:
     </div>
     """, unsafe_allow_html=True)
 
-# --- "MORE INFO" BUTTON ---
+# --- MORE INFO BUTTON ---
 if st.session_state.display_count < len(all_items):
     if st.button(">> LOAD_MORE_INTELLIGENCE"):
         st.session_state.display_count += CONFIG["step_display"]
-        st.rerun() # 即座に反映
+        st.rerun()
 else:
     st.markdown(f"<p style='text-align:center; color:{CONFIG['neon_pink']}; font-family:Orbitron; font-size:0.8rem;'>-- ALL_DATA_RETRIEVED --</p>", unsafe_allow_html=True)
