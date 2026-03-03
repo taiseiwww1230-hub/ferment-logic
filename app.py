@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import urllib.parse
 import time
 
-# --- v25.2 NEURAL_PULSE (OVERDRIVE・高輝度モデル) ---
+# --- v25.3 NEURAL_PULSE (TITLE_SIZE_TUNED) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -21,7 +21,7 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="centered")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: ライブパルス・エンジンの「あからさまな」強化 ---
+# --- CSS: ライブパルス・エンジン（タイトルサイズ微調整版） ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono&display=swap');
@@ -63,7 +63,7 @@ st.markdown(f"""
             rgba(0, 255, 65, 0) 60%,
             transparent 100%
         );
-        background-size: 100% 100%, 100% 400%; /* スキャンラインの高さを調整 */
+        background-size: 100% 100%, 100% 400%;
         z-index: 9999;
         pointer-events: none;
         animation: scan-line-extreme 4s linear infinite;
@@ -79,11 +79,11 @@ st.markdown(f"""
         100% {{ background-position: 0% 0%, 0% 100%; }}
     }}
 
-    /* タイトル：爆光 */
+    /* タイトル：文字サイズを微小化しつつ爆光を維持 */
     .title {{
         color: #FFFFFF !important;
         font-family: 'Orbitron';
-        font-size: 2.2rem;
+        font-size: 1.8rem; /* 2.2remから縮小 */
         text-align: center;
         text-shadow: 0 0 15px {CONFIG["primary"]}, 0 0 30px {CONFIG["neon_blue"]}, 0 0 60px {CONFIG["neon_blue"]};
         padding: 40px 0 10px 0;
@@ -105,7 +105,7 @@ st.markdown(f"""
         50% {{ transform: translateY(-25px) scale(1.1); }}
     }}
 
-    /* ニュースカード：高コントラスト */
+    /* ニュースカード */
     .news-card {{
         background: rgba(0, 10, 5, 0.9) !important;
         border: 2px solid rgba(0, 255, 65, 0.4) !important;
@@ -131,7 +131,7 @@ st.markdown(f"""
         text-decoration: none !important;
     }}
 
-    /* ボタン：より分かりやすく、かつ過激に */
+    /* ボタン */
     .stButton > button {{
         background: rgba(0, 255, 65, 0.1) !important;
         color: {CONFIG["primary"]} !important;
@@ -197,7 +197,6 @@ for entry in display_items:
     </style>
     """, unsafe_allow_html=True)
 
-# 分かりやすいボタンへの変更
 if st.session_state.display_count < len(all_items):
     if st.button("[ ADD MORE INTEL ]"):
         st.session_state.display_count += CONFIG["step_display"]
