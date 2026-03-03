@@ -5,7 +5,7 @@ import urllib.parse
 import random
 import time
 
-# --- EXECUTIVE TERMINAL v19.0 (Super-Radiant Orbital) ---
+# --- EXECUTIVE TERMINAL v20.0 (Compact Overdrive) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_name": "CORE_INTELLIGENCE",
@@ -18,95 +18,88 @@ CONFIG = {
 
 st.set_page_config(page_title=CONFIG["site_name"], page_icon="🧬", layout="centered")
 
-# --- CSS: RADIANT IMPACT OVERRIDE ---
+# --- CSS: HIGH-DENSITY OPTIMIZATION ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@500&display=swap');
 
-    /* 1. 背景：暗さを払拭する「環境光」の導入 */
+    /* 背景：環境光とグリッドを維持 */
     [data-testid="stAppViewContainer"] {{
         background-color: #000c05 !important;
         background-image: 
-            /* 画面上部からの強い青い光 */
-            radial-gradient(circle at 50% -20%, rgba(0, 229, 255, 0.3), transparent 70%),
-            /* 左下からのピンクの光 */
-            radial-gradient(circle at -10% 100%, rgba(255, 0, 224, 0.15), transparent 50%),
-            /* 電子グリッド */
+            radial-gradient(circle at 50% -20%, rgba(0, 229, 255, 0.2), transparent 70%),
+            radial-gradient(circle at -10% 100%, rgba(255, 0, 224, 0.1), transparent 50%),
             linear-gradient(rgba(0, 255, 65, 0.08) 1px, transparent 1px),
             linear-gradient(90deg, rgba(0, 255, 65, 0.08) 1px, transparent 1px) !important;
         background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px !important;
         background-attachment: fixed !important;
     }}
 
-    /* 2. タイトル：絶対的な白と外光 */
+    /* タイトル：サイズを大幅に縮小し、ニュースを上へ押し上げる */
     .absolute-title {{
         color: #FFFFFF !important;
         font-family: 'Orbitron', sans-serif !important;
         font-weight: 900 !important;
-        font-size: 3rem !important;
+        font-size: 1.8rem !important; /* 3rem -> 1.8remへ縮小 */
         text-align: center !important;
-        letter-spacing: 10px !important;
-        padding-top: 60px !important;
+        letter-spacing: 4px !important;
+        padding-top: 25px !important; /* 余白を削減 */
         margin: 0 !important;
-        text-shadow: 0 0 20px #FFF, 0 0 40px {CONFIG["neon_blue"]} !important;
+        text-shadow: 0 0 10px #FFF, 0 0 20px {CONFIG["neon_blue"]} !important;
         -webkit-text-fill-color: white !important;
     }}
 
-    /* 3. 衛星：躍動感あふれる「周回振動」アニメーション */
+    /* 衛星：サイズを調整し、配置をコンパクトに */
     .satellite-container {{
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 40px 0;
+        padding: 15px 0 !important; /* 40px -> 15px */
     }}
 
     .moving-satellite {{
-        font-size: 5rem;
-        filter: drop-shadow(0 0 20px {CONFIG["neon_blue"]});
+        font-size: 3rem !important; /* 5rem -> 3rem */
+        filter: drop-shadow(0 0 15px {CONFIG["neon_blue"]});
         animation: orbit-swing 6s ease-in-out infinite;
     }}
 
     @keyframes orbit-swing {{
         0% {{ transform: translate(0, 0) rotate(0deg); }}
-        25% {{ transform: translate(30px, -15px) rotate(10deg); }}
-        50% {{ transform: translate(0, -30px) rotate(0deg); }}
-        75% {{ transform: translate(-30px, -15px) rotate(-10deg); }}
+        25% {{ transform: translate(20px, -10px) rotate(10deg); }}
+        50% {{ transform: translate(0, -20px) rotate(0deg); }}
+        75% {{ transform: translate(-20px, -10px) rotate(-10deg); }}
         100% {{ transform: translate(0, 0) rotate(0deg); }}
     }}
 
-    /* 4. エージェントパネル：透過度を下げて「光を遮る実体」感を出す */
+    /* エージェントパネル：高さを抑える */
     .ai-panel {{
         background: rgba(0, 30, 15, 0.85) !important;
         border: 1px solid {CONFIG["primary"]} !important;
-        box-shadow: 0 0 30px rgba(0, 255, 65, 0.2) !important;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.1) !important;
         border-radius: 4px;
-        padding: 25px;
-        margin-bottom: 40px;
+        padding: 15px !important; /* 25px -> 15px */
+        margin-bottom: 20px !important; /* 40px -> 20px */
         backdrop-filter: blur(10px);
     }}
 
-    /* 5. ニュースカード：ハイコントラスト */
+    /* ニュースカード：一画面の密度を上げる */
     .news-card {{
-        background: rgba(255, 255, 255, 0.05) !important;
-        border-left: 8px solid {CONFIG["primary"]} !important;
-        padding: 25px;
-        margin-bottom: 20px;
-        border-radius: 4px;
-        transition: 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-    }}
-    .news-card:hover {{
-        background: rgba(255, 255, 255, 0.1) !important;
-        transform: scale(1.02);
+        background: rgba(255, 255, 255, 0.04) !important;
+        border-left: 5px solid {CONFIG["primary"]} !important;
+        padding: 15px !important; /* 25px -> 15px */
+        margin-bottom: 12px !important; /* 20px -> 12px */
+        border-radius: 2px;
     }}
 
     .news-card a {{
         color: {CONFIG["neon_blue"]} !important;
-        font-size: 1.3rem !important;
-        font-weight: 900 !important;
+        font-size: 1.1rem !important; /* 1.3rem -> 1.1rem */
+        font-weight: 800 !important;
         text-decoration: none !important;
+        line-height: 1.4 !important;
     }}
 
-    .time-tag {{ color: {CONFIG["neon_pink"]}; font-family: 'Orbitron'; font-size: 0.8rem; font-weight: bold; }}
+    .time-tag {{ color: {CONFIG["neon_pink"]}; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: bold; }}
 
     header, footer {{ visibility: hidden !important; }}
     </style>
@@ -114,29 +107,21 @@ st.markdown(f"""
 
 # --- RENDERING ---
 
-# タイトル
 st.markdown(f'<div class="absolute-title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
-st.markdown(f"<p style='text-align:center; color:{CONFIG['primary']}; font-family:Roboto Mono; font-size:12px; letter-spacing:4px;'>LOCAL_TIME: JST // SATELLITE_LINK: ESTABLISHED</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center; color:{CONFIG['primary']}; font-family:Roboto Mono; font-size:10px; letter-spacing:2px; margin-bottom:0;'>LOCAL_TIME: JST // SATELLITE_LINK: ACTIVE</p>", unsafe_allow_html=True)
 
-# 躍動する衛星
-st.markdown(f"""
-    <div class="satellite-container">
-        <div class="moving-satellite">{CONFIG['editor_avatar']}</div>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown(f'<div class="satellite-container"><div class="moving-satellite">{CONFIG["editor_avatar"]}</div></div>', unsafe_allow_html=True)
 
-# エージェントメッセージ
-st.markdown(f"""
-    <div class="ai-panel">
-        <div style="color:{CONFIG['primary']}; font-family:Orbitron; font-weight:bold; font-size:1.2rem; margin-bottom:10px;">>> {CONFIG['editor_name']}</div>
-        <div style="color:white; font-size:1rem; line-height:1.6;">
-            環境光レベルを300%に上昇。衛星を周回軌道(Orbit-Swing)に投入しました。<br>
-            JST時間軸に基づき、深層データからトレンドを自動抽出中...
+with st.container():
+    st.markdown(f"""
+        <div class="ai-panel">
+            <div style="color:{CONFIG['primary']}; font-family:Orbitron; font-weight:bold; font-size:0.9rem;">>> {CONFIG['editor_name']}</div>
+            <div style="color:white; font-size:0.85rem; line-height:1.4;">
+                高密度表示モード(Compact-View)へ移行。情報をフロントレイヤーに凝縮しました。
+            </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-# ニュースリスト
 @st.cache_data(ttl=1800)
 def fetch_data():
     q = urllib.parse.quote(CONFIG["news_query"])
@@ -157,9 +142,9 @@ for entry in items:
     st.markdown(f"""
     <div class="news-card">
         <div class="time-tag">INTEL_LOG // {dt} JST</div>
-        <div style="margin: 15px 0;"><a href="{entry.link}" target="_blank">{entry.title}</a></div>
-        <div style="color:#aaa; font-size:0.9rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px; font-family:Roboto Mono;">
-            [AI_REPORT] 信頼度: {random.randint(98, 99)}% // 解析シグナル良好。
+        <div style="margin: 8px 0;"><a href="{entry.link}" target="_blank">{entry.title}</a></div>
+        <div style="color:#888; font-size:0.75rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px; font-family:Roboto Mono;">
+            [AI_REPORT] 信頼度: {random.randint(98, 99)}% // 解析完了。
         </div>
     </div>
     """, unsafe_allow_html=True)
