@@ -4,7 +4,7 @@ from datetime import datetime
 import urllib.parse
 import random
 
-# --- EXECUTIVE TERMINAL v8.0 (Ultimate Starfield) ---
+# --- EXECUTIVE TERMINAL v11.0 (Time-Sorted Edition) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_name": "CORE-AI: FERMENT",
@@ -15,53 +15,37 @@ CONFIG = {
     "neon_pink": "#FF00E0", 
     "space_black": "#010101", 
     "news_query": '(ヨーグルト OR 乳製品 OR 乳酸菌 OR 紅茶 OR 茶葉) AND ("新発売" OR "期間限定" OR "独自開発" OR "トレンド") when:7d',
-    "greeting": "[SYSTEM: ONLINE] 168hデータ同期完了。無限の星界から最新の知性を抽出しました。"
+    "greeting": "[SYSTEM: ONLINE] 時間軸の最適化を完了。最新の知性を最上位にデプロイしました。"
 }
 
 st.set_page_config(page_title=CONFIG["site_name"], page_icon="🧬", layout="centered")
 
-# --- ULTIMATE SPACE UI (満天の星空と流星のエフェクト) ---
+# --- VISUALS ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700&family=Roboto+Mono:wght@300&display=swap');
 
-    /* 背景：圧倒的な星の量と奥行き */
     .stApp {{
         background-color: {CONFIG["space_black"]};
         background-image: 
-            /* レイヤー1: 小さく遠い星 */
             radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
             radial-gradient(1.5px 1.5px at 40px 70px, #fff, rgba(0,0,0,0)),
-            radial-gradient(1px 1px at 50% 10%, #ddd, rgba(0,0,0,0)),
             radial-gradient(2px 2px at 80% 30%, #fff, rgba(0,0,0,0)),
-            radial-gradient(1px 1px at 10% 80%, #eee, rgba(0,0,0,0)),
-            radial-gradient(1.5px 1.5px at 90% 85%, #fff, rgba(0,0,0,0)),
-            radial-gradient(1px 1px at 25% 45%, #ddd, rgba(0,0,0,0)),
-            /* レイヤー2: 密集した星屑 */
-            radial-gradient(white, rgba(255,255,255,.2) 1.5px, transparent 2.5px),
-            radial-gradient(white, rgba(255,255,255,.1) 1px, transparent 2px),
-            /* レイヤー3: 遠くの銀河のような霧 */
-            radial-gradient(at 10% 10%, rgba(0, 255, 65, 0.05) 0px, transparent 40%),
-            radial-gradient(at 90% 90%, rgba(0, 229, 255, 0.05) 0px, transparent 40%);
-        
-        /* 星屑のループ設定 */
-        background-size: 150px 150px, 250px 250px, 200px 200px, 300px 300px, 350px 350px, 400px 400px, 220px 220px, 180px 180px, 280px 280px, 100% 100%, 100% 100%;
+            radial-gradient(white, rgba(255,255,255,.2) 1.5px, transparent 2.5px);
+        background-size: 150px 150px, 250px 250px, 300px 300px, 180px 180px;
         color: {CONFIG["secondary"]};
         font-family: 'Inter', sans-serif;
     }}
 
-    /* タイトル：星空に負けない発光 */
     .stTitle {{
         font-family: 'Orbitron', sans-serif;
         font-size: 1.6rem !important;
         letter-spacing: 4px;
         color: {CONFIG["secondary"]} !important;
         text-align: center;
-        margin-top: 15px !important;
         text-shadow: 0 0 10px {CONFIG["neon_blue"]}, 0 0 30px {CONFIG["neon_blue"]};
     }}
 
-    /* 衛星エージェント：宇宙に漂う浮遊感 */
     .ai-agent-container {{
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid rgba(0, 229, 255, 0.2);
@@ -72,8 +56,8 @@ st.markdown(f"""
         align-items: center;
         gap: 20px;
         backdrop-filter: blur(8px);
-        box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
     }}
+
     .ai-avatar {{
         font-size: 2.8rem;
         animation: float 4s ease-in-out infinite;
@@ -84,11 +68,8 @@ st.markdown(f"""
         100% {{ transform: translateY(0px); }}
     }}
 
-    /* ニュースカード：一覧性重視のサイバーパネル */
     .news-card {{
         background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 255, 255, 0.06);
         border-left: 3px solid {CONFIG["primary"]};
         padding: 18px;
         margin-bottom: 12px;
@@ -107,7 +88,6 @@ st.markdown(f"""
         font-family: 'Orbitron', sans-serif;
         margin-bottom: 8px;
         display: block;
-        letter-spacing: 1px;
     }}
 
     .news-card a {{
@@ -115,7 +95,6 @@ st.markdown(f"""
         text-decoration: none;
         font-size: 1.05rem;
         font-weight: 600;
-        line-height: 1.4;
     }}
 
     .analysis-content {{
@@ -128,12 +107,10 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 画面構成 (Final Cosmic Edition) ---
-
+# --- HEADER ---
 st.title(f"{CONFIG['site_name']}")
-st.markdown(f"<div style='text-align:center; font-family:Roboto Mono; font-size:10px; color:{CONFIG['primary']}; margin-bottom:20px; letter-spacing:2px;'>STARDUST_DENSITY: MAX // SAT_LINK: STABLE</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; font-family:Roboto Mono; font-size:10px; color:{CONFIG['primary']}; margin-bottom:20px; letter-spacing:2px;'>TIME_SORT: ENABLED // DATA_INTEGRITY: HIGH</div>", unsafe_allow_html=True)
 
-# 衛星エージェント
 with st.container():
     st.markdown(f"""
     <div class="ai-agent-container">
@@ -145,34 +122,41 @@ with st.container():
     </div>
     """, unsafe_allow_html=True)
 
-# ニュース取得
+# --- NEWS FETCHING & SORTING ---
 @st.cache_data(ttl=1800)
-def fetch_news_final():
+def fetch_news_sorted():
     encoded_query = urllib.parse.quote(CONFIG["news_query"])
     url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ja&gl=JP&ceid=JP:ja"
     try:
         feed = feedparser.parse(url)
-        return feed.entries[:20]
+        entries = feed.entries
+        
+        # 公開日時で降順（最新が上）にソート
+        # published_parsedが無いエントリは最後尾へ
+        entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
+        
+        return entries[:20]
     except:
         return []
 
-items = fetch_news_final()
+items = fetch_news_sorted()
 
-# ニュースリスト
+# --- DISPLAY ---
 for entry in items:
-    pub_date = entry.get('published', '')
+    # 表示用の日時フォーマット
+    pub_date = entry.get('published', 'N/A')
     accuracy = random.randint(98, 99)
+    
     st.markdown(f"""
     <div class="news-card">
-        <span class="time-tag">INTEL_LOG // {pub_date[:16]}</span>
+        <span class="time-tag">INTEL_LOG // {pub_date}</span>
         <a href="{entry.link}" target="_blank">{entry.title}</a>
         <div class="analysis-content">
             <span style="color:{CONFIG['primary']}; font-size:9px; font-family:Roboto Mono;">[AI_REASONING]</span> 
-            最新の市場動向と成分相関を分析。優先度：極めて高い。
+            最新の市場動向を時間軸に沿って解析。情報の鮮度：極めて高い。
             <span style="color:{CONFIG['neon_blue']}; font-size:9px;">>> ACCURACY: {accuracy}%</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-# フッター
-st.write(f"<p style='text-align:center; color:#222; font-family:Orbitron; font-size:9px; padding:50px;'>To the Edge of the Universe. | FERMENT-LOGIC v8.0</p>", unsafe_allow_html=True)
+st.write(f"<p style='text-align:center; color:#222; font-family:Orbitron; font-size:9px; padding:50px;'>Sorted by Chronological Intelligence. | FERMENT-LOGIC v11.0</p>", unsafe_allow_html=True)
