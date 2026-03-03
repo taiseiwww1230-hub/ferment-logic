@@ -5,7 +5,7 @@ import urllib.parse
 import random
 import time
 
-# --- v24.2 FINAL_PULSE_INTEGRATION (究極の安定・鼓動モデル) ---
+# --- v24.3 TRUE_PULSE (背景強制上書き・パルス統合モデル) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -22,30 +22,31 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="centered")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: デバッグ済み・ライブパルス注入ロジック ---
+# --- CSS:真っ白な背景を打ち破る、強制ライブパルス注入 ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono&display=swap');
     
-    /* 1. 背景の強制透過とパルス層の再構築 */
-    /* stAppViewContainer 自体の背景を殺して、背後を見せる */
+    /* 1. 背景の強制上書き：標準テーマを殺し、パルスを挿入 */
+    /* stAppViewContainer 自体の背景色を透明化し、背後のアニメーションを見せる */
     [data-testid="stAppViewContainer"] {{
         background: transparent !important;
     }}
 
-    /* 最下層にアニメーション付き背景を固定配置 */
+    /* 2. 最下層にアニメーション付き背景（パルス）を配置 */
     [data-testid="stAppViewContainer"]::before {{
         content: "";
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
+        /* グリッドと中央の光を統合 */
         background-color: #000804 !important;
         background-image: 
             radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.15), transparent 80%),
             linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
             linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px) !important;
         background-size: 100% 100%, 30px 30px, 30px 30px !important;
-        z-index: -2;
-        /* 背景全体の明滅アニメーション */
+        z-index: -2; /* 確実にコンテンツの背後へ */
+        /* 背景全体の明滅アニメーション（ライブパルス） */
         animation: global-pulse 6s ease-in-out infinite alternate !important;
     }}
 
@@ -54,7 +55,7 @@ st.markdown(f"""
         100% {{ filter: brightness(1.2) contrast(1.2); opacity: 1; }}
     }}
 
-    /* 2. タイトル：サイズを抑えつつ発光 */
+    /* タイトル、衛星、カード、ボタンのロジックは正常動作を維持 */
     .title {{
         color: white !important;
         font-family: 'Orbitron';
@@ -64,7 +65,6 @@ st.markdown(f"""
         padding: 20px 0 5px 0;
     }}
 
-    /* 3. 復活の動く衛星 */
     .satellite {{
         text-align: center;
         font-size: 3.5rem;
@@ -77,7 +77,6 @@ st.markdown(f"""
         50% {{ transform: translateY(-20px) rotate(10deg); }}
     }}
 
-    /* 4. ニュースカード & ホバーアクション (正常動作維持) */
     .news-card {{
         background: rgba(255, 255, 255, 0.04);
         border-left: 5px solid {CONFIG["primary"]};
@@ -103,7 +102,6 @@ st.markdown(f"""
         text-decoration: none;
     }}
 
-    /* 5. グリッチボタン (正常動作維持) */
     .stButton > button {{
         background: transparent !important;
         color: {CONFIG["primary"]} !important;
@@ -171,4 +169,3 @@ if st.session_state.display_count < len(all_items):
         st.rerun()
 else:
     st.markdown(f"<p style='text-align:center; color:{CONFIG['neon_pink']}; font-family:Orbitron; padding-top:20px;'>-- END OF STREAM --</p>", unsafe_allow_html=True)
-    
