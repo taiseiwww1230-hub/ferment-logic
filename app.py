@@ -5,134 +5,155 @@ import urllib.parse
 import random
 import time
 
-# --- EXECUTIVE TERMINAL v15.0 (Absolute Neon Mist) ---
+# --- EXECUTIVE TERMINAL v16.0 (Nebula-Grid Override) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_name": "CORE-AI: FERMENT",
     "editor_avatar": "🛰️",
     "primary": "#00FF41",   
-    "secondary": "#FFFFFF", 
     "neon_blue": "#00E5FF", 
     "neon_pink": "#FF00E0", 
-    "deep_mist": "#010801", # 真っ黒ではない、深い緑の霧
     "news_query": '(ヨーグルト OR 乳製品 OR 乳酸菌 OR 紅茶 OR 茶葉) AND ("新発売" OR "期間限定" OR "独自開発" OR "トレンド") when:7d',
-    "greeting": "[SYSTEM: ONLINE] 背景レイヤーの強制再構築完了。視覚情報をアップデートしました。"
+    "greeting": "[SYSTEM: OVERRIDE] 視覚レイヤーの物理階層を再定義。グリッド・インターフェース展開。"
 }
 
 st.set_page_config(page_title=CONFIG["site_name"], page_icon="🧬", layout="centered")
 
-# --- VISUAL RECONSTRUCTION (背景固定・強制上書き) ---
+# --- CSS: ABSOLUTE UI OVERRIDE ---
 st.markdown(f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700&family=Roboto+Mono:wght@300&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Roboto+Mono:wght@300&display=swap');
 
-    /* 全ての背景を強制的に上書き */
-    [data-testid="stAppViewContainer"], .stApp {{
-        background-color: {CONFIG["deep_mist"]} !important;
-        background-image: 
-            /* 走査線エフェクト */
-            linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
-            /* ネオンの滲みレイヤー */
-            radial-gradient(at 10% 10%, rgba(0, 255, 65, 0.15) 0px, transparent 45%),
-            radial-gradient(at 90% 10%, rgba(0, 229, 255, 0.12) 0px, transparent 45%),
-            radial-gradient(at 50% 90%, rgba(255, 0, 224, 0.08) 0px, transparent 50%) !important;
-        background-size: 100% 4px, 100% 100%, 100% 100%, 100% 100% !important;
-        background-attachment: fixed !important;
+    /* 1. 背景の完全上書き：黒を殺し、グリッドとグラデーションを強制 */
+    [data-testid="stAppViewContainer"] {{
+        background: 
+            /* サイバーグリッド（近未来感の核） */
+            linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px),
+            linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
+            /* ネオンの霧（奥行き） */
+            radial-gradient(circle at 20% 30%, rgba(0,229,255,0.15), transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(255,0,224,0.1), transparent 50%),
+            /* ベースカラー：深いミッドナイトブルーグリーン */
+            #000a05 !important;
+        background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%, 100% 100% !important;
     }}
 
-    /* ニュースカードの透明感と可読性の向上 */
-    .news-card {{
-        background: rgba(10, 20, 10, 0.6) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(0, 255, 65, 0.15) !important;
-        border-left: 4px solid {CONFIG["primary"]} !important;
-        padding: 20px;
-        margin-bottom: 15px;
-        border-radius: 4px;
-        transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    }}
-    
-    .news-card:hover {{
-        background: rgba(20, 40, 20, 0.8) !important;
-        border-left: 4px solid {CONFIG["neon_pink"]} !important;
-        transform: translateX(5px);
-        box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
-    }}
-
+    /* 2. タイトルの蘇生：灰色を許さない純白発光 */
     .stTitle {{
-        font-family: 'Orbitron', sans-serif;
-        font-size: 1.8rem !important;
-        letter-spacing: 5px;
-        color: {CONFIG["secondary"]} !important;
-        text-shadow: 0 0 15px {CONFIG["neon_blue"]} !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-weight: 900 !important;
+        color: #FFFFFF !important;
+        text-align: center !important;
+        letter-spacing: 8px !important;
+        text-transform: uppercase;
+        filter: drop-shadow(0 0 10px {CONFIG["neon_blue"]}) drop-shadow(0 0 20px {CONFIG["neon_blue"]}) !important;
+        padding-bottom: 20px !important;
     }}
 
+    /* 3. エージェントエリア：浮かぶガラスパネル */
     .ai-agent-container {{
-        background: rgba(0, 15, 0, 0.7);
-        border: 1px solid rgba(0, 255, 65, 0.3);
-        padding: 18px;
-        border-radius: 10px;
-        backdrop-filter: blur(20px);
-        margin-bottom: 35px;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 2px solid {CONFIG["neon_blue"]} !important;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.3), inset 0 0 10px rgba(0, 229, 255, 0.2) !important;
+        border-radius: 15px !important;
+        padding: 25px !important;
+        backdrop-filter: blur(10px) !important;
+        margin-bottom: 40px !important;
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 25px;
     }}
 
-    .ai-avatar {{ font-size: 3rem; animation: float 4s ease-in-out infinite; }}
-    @keyframes float {{ 0%, 100% {{ transform: translateY(0px); }} 50% {{ transform: translateY(-10px); }} }}
+    /* 4. ニュースカード：最新鋭のモジュール感 */
+    .news-card {{
+        background: rgba(0, 20, 10, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-left: 5px solid {CONFIG["primary"]} !important;
+        border-radius: 5px !important;
+        padding: 20px !important;
+        margin-bottom: 15px !important;
+        backdrop-filter: blur(5px) !important;
+        transition: all 0.3s ease !important;
+    }}
+    .news-card:hover {{
+        background: rgba(0, 40, 20, 0.6) !important;
+        border-left: 5px solid {CONFIG["neon_pink"]} !important;
+        transform: scale(1.02) !important;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.2) !important;
+    }}
 
-    .time-tag {{ color: {CONFIG["neon_pink"]}; font-family: 'Orbitron'; font-size: 0.7rem; }}
-    .news-card a {{ color: #fff !important; text-decoration: none; font-weight: 600; font-size: 1.1rem; }}
-    .analysis-content {{ color: #888; font-size: 0.85rem; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }}
+    /* 5. 文字の視認性 */
+    .time-tag {{
+        color: {CONFIG["neon_pink"]} !important;
+        font-family: 'Orbitron' !important;
+        font-size: 0.75rem !important;
+        font-weight: bold;
+    }}
+    .news-card a {{
+        color: #00E5FF !important; /* タイトルリンクを明るいブルーに */
+        text-decoration: none !important;
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+    }}
+    .analysis-content {{
+        color: #CCCCCC !important;
+        font-size: 0.9rem !important;
+        margin-top: 10px;
+    }}
+
+    /* ヘッダー等の余計な線を消す */
+    header {{visibility: hidden !important;}}
+    footer {{visibility: hidden !important;}}
     </style>
     """, unsafe_allow_html=True)
 
-# --- APP LOGIC ---
+# --- APP START ---
 st.title(f"{CONFIG['site_name']}")
-st.markdown(f"<p style='text-align:center; color:{CONFIG['primary']}; font-family:Roboto Mono; font-size:11px;'>ENVIRONMENT: MIST_STABLE // JST_SYNC: ACTIVE</p>", unsafe_allow_html=True)
 
 with st.container():
     st.markdown(f"""
     <div class="ai-agent-container">
-        <div class="ai-avatar">{CONFIG['editor_avatar']}</div>
+        <div style="font-size: 3.5rem; animation: pulse 2s infinite alternate;">{CONFIG['editor_avatar']}</div>
         <div>
-            <div style="color:{CONFIG['primary']}; font-family:Orbitron; font-weight:700;">[ {CONFIG['editor_name']} ]</div>
-            <div style="color:#ddd; font-size:0.9rem;">{CONFIG['greeting']}</div>
+            <div style="color:{CONFIG['primary']}; font-family:Orbitron; font-weight:bold; font-size:1.1rem; letter-spacing:2px;">>> {CONFIG['editor_name']}</div>
+            <div style="color:#FFF; font-size:1rem; opacity:0.9;">{CONFIG['greeting']}</div>
         </div>
     </div>
+    <style>
+    @keyframes pulse {{
+        from {{ transform: scale(1); filter: drop-shadow(0 0 5px {CONFIG["primary"]}); }}
+        to {{ transform: scale(1.1); filter: drop-shadow(0 0 15px {CONFIG["primary"]}); }}
+    }}
+    </style>
     """, unsafe_allow_html=True)
 
+# --- DATA FETCH ---
 @st.cache_data(ttl=1800)
-def fetch_news():
-    encoded_query = urllib.parse.quote(CONFIG["news_query"])
-    url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ja&gl=JP&ceid=JP:ja"
-    try:
-        feed = feedparser.parse(url)
-        entries = feed.entries
-        entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
-        return entries[:20]
-    except: return []
+def fetch_data():
+    q = urllib.parse.quote(CONFIG["news_query"])
+    f = feedparser.parse(f"https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja")
+    entries = f.entries
+    entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
+    return entries[:20]
 
-items = fetch_news()
+items = fetch_data()
 JST = timezone(timedelta(hours=+9), 'JST')
 
 for entry in items:
     try:
-        dt_gmt = datetime.fromtimestamp(time.mktime(entry.published_parsed), timezone.utc)
-        display_time = dt_gmt.astimezone(JST).strftime('%Y/%m/%d %H:%M')
-    except: display_time = "N/A"
+        ts = time.mktime(entry.published_parsed)
+        dt = datetime.fromtimestamp(ts, timezone.utc).astimezone(JST).strftime('%Y/%m/%d %H:%M')
+    except: dt = "N/A"
 
     st.markdown(f"""
     <div class="news-card">
-        <div class="time-tag">INTEL_LOG // {display_time} JST</div>
-        <a href="{entry.link}" target="_blank">{entry.title}</a>
+        <div class="time-tag">SEQUENCE // {dt} JST</div>
+        <div style="margin: 10px 0;"><a href="{entry.link}" target="_blank">{entry.title}</a></div>
         <div class="analysis-content">
-            <span style="color:{CONFIG['primary']};">[ANALYSIS]</span> 市場トレンドと成分相関を確認。
-            <span style="color:{CONFIG['neon_blue']};">>> CONFIDENCE: {random.randint(98, 99)}%</span>
+            <span style="color:{CONFIG['primary']}; font-family:Roboto Mono;">[AI_LOG]</span> 
+            トレンド同期率: {random.randint(97, 99)}% // 解析完了。
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-st.write(f"<p style='text-align:center; color:#333; font-family:Orbitron; font-size:10px; padding:40px;'>v15.0 Absolute Neon Mist | Final Authority</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:rgba(255,255,255,0.2); font-family:Orbitron; font-size:10px;'>PROTOCOL v16.0 // TERMINAL_ESTABLISHED</p>", unsafe_allow_html=True)
