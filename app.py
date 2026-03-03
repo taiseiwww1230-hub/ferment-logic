@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import urllib.parse
 import time
 
-# --- v25.1 NEURAL_PULSE (ライブ・エナジー・オーバーレイモデル) ---
+# --- v25.2 NEURAL_PULSE (OVERDRIVE・高輝度モデル) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -21,135 +21,141 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="centered")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: ライブパルス・エンジンの実装 ---
+# --- CSS: ライブパルス・エンジンの「あからさまな」強化 ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono&display=swap');
     
-    /* 1. 基本背景の漆黒化 */
     html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main {{
-        background-color: #000502 !important;
+        background-color: #000201 !important;
         color: white !important;
-        overflow-x: hidden;
     }}
 
-    /* 2. 背景グリッドの鼓動 (Breathing Grid) */
+    /* 1. 背景グリッド：より深い鼓動 */
     [data-testid="stAppViewContainer"]::before {{
         content: "";
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
         background-image: 
-            linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
-        background-size: 40px 40px;
+            linear-gradient(rgba(0, 255, 65, 0.15) 2px, transparent 2px),
+            linear-gradient(90deg, rgba(0, 255, 65, 0.15) 2px, transparent 2px);
+        background-size: 50px 50px;
         z-index: 0;
-        animation: grid-pulse 4s ease-in-out infinite alternate;
+        animation: grid-pulse-extreme 3s ease-in-out infinite alternate;
     }}
 
-    /* 3. ライブ・スキャンライン (Scanning Line) */
+    /* 2. 強烈なスキャンライン & デジタルノイズ */
     [data-testid="stAppViewContainer"]::after {{
         content: "";
         position: fixed;
-        top: -100%; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.15),
+            rgba(0, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+        ), linear-gradient(
             to bottom,
             transparent 0%,
-            rgba(0, 255, 65, 0) 45%,
-            rgba(0, 255, 65, 0.1) 50%,
-            rgba(0, 255, 65, 0) 55%,
+            rgba(0, 255, 65, 0) 40%,
+            rgba(0, 255, 65, 0.3) 50%,
+            rgba(0, 255, 65, 0) 60%,
             transparent 100%
         );
+        background-size: 100% 100%, 100% 400%; /* スキャンラインの高さを調整 */
         z-index: 9999;
         pointer-events: none;
-        animation: scan-line 8s linear infinite;
+        animation: scan-line-extreme 4s linear infinite;
     }}
 
-    /* アニメーション定義 */
-    @keyframes grid-pulse {{
-        0% {{ opacity: 0.2; transform: scale(1.0); }}
-        100% {{ opacity: 0.5; transform: scale(1.02); }}
+    @keyframes grid-pulse-extreme {{
+        0% {{ opacity: 0.1; transform: scale(1.0); }}
+        100% {{ opacity: 0.7; transform: scale(1.05); }}
     }}
 
-    @keyframes scan-line {{
-        0% {{ top: -100%; }}
-        100% {{ top: 100%; }}
+    @keyframes scan-line-extreme {{
+        0% {{ background-position: 0% 0%, 0% -100%; }}
+        100% {{ background-position: 0% 0%, 0% 100%; }}
     }}
 
-    /* タイトル：ネオン発光の深化 */
+    /* タイトル：爆光 */
     .title {{
         color: #FFFFFF !important;
         font-family: 'Orbitron';
         font-size: 2.2rem;
         text-align: center;
-        text-shadow: 0 0 10px {CONFIG["primary"]}, 0 0 20px {CONFIG["neon_blue"]}, 0 0 40px {CONFIG["neon_blue"]};
+        text-shadow: 0 0 15px {CONFIG["primary"]}, 0 0 30px {CONFIG["neon_blue"]}, 0 0 60px {CONFIG["neon_blue"]};
         padding: 40px 0 10px 0;
-        letter-spacing: 6px;
+        letter-spacing: 8px;
         position: relative;
         z-index: 100;
     }}
 
     .satellite {{
         text-align: center;
-        font-size: 4.5rem;
-        filter: drop-shadow(0 0 30px {CONFIG["neon_blue"]});
-        animation: satellite-float 5s ease-in-out infinite;
-        margin-bottom: 20px;
+        font-size: 5rem;
+        filter: drop-shadow(0 0 40px {CONFIG["primary"]});
+        animation: satellite-float 4s ease-in-out infinite;
         position: relative;
         z-index: 100;
     }}
     @keyframes satellite-float {{
-        0%, 100% {{ transform: translateY(0) rotate(-5deg); filter: brightness(1); }}
-        50% {{ transform: translateY(-20px) rotate(5deg); filter: brightness(1.5); }}
+        0%, 100% {{ transform: translateY(0) scale(1.0); }}
+        50% {{ transform: translateY(-25px) scale(1.1); }}
     }}
 
-    /* ニュースカード：フローティング・エフェクト */
+    /* ニュースカード：高コントラスト */
     .news-card {{
-        background: rgba(0, 15, 5, 0.85) !important;
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(0, 255, 65, 0.2) !important;
-        border-left: 4px solid {CONFIG["primary"]} !important;
+        background: rgba(0, 10, 5, 0.9) !important;
+        border: 2px solid rgba(0, 255, 65, 0.4) !important;
+        border-left: 8px solid {CONFIG["primary"]} !important;
         padding: 25px;
-        margin-bottom: 20px;
-        border-radius: 4px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin-bottom: 25px;
+        transition: 0.2s ease-out;
         position: relative;
         z-index: 100;
     }}
     .news-card:hover {{
-        transform: translateX(10px) scale(1.02);
-        border-left: 4px solid {CONFIG["neon_pink"]} !important;
-        box-shadow: -10px 0 30px rgba(0, 255, 65, 0.2);
-        background: rgba(0, 30, 10, 0.95) !important;
+        border: 2px solid {CONFIG["neon_pink"]} !important;
+        border-left: 8px solid {CONFIG["neon_pink"]} !important;
+        transform: scale(1.03);
+        box-shadow: 0 0 40px rgba(255, 0, 224, 0.3);
     }}
     
     .news-card a {{
-        color: {CONFIG["neon_blue"]} !important;
-        font-size: 1.15rem;
-        font-weight: 800;
+        color: #FFFFFF !important;
+        text-shadow: 0 0 5px {CONFIG["neon_blue"]};
+        font-size: 1.2rem;
+        font-weight: 900;
         text-decoration: none !important;
-        line-height: 1.4;
     }}
 
-    /* ボタン：サイバーパンク・スタイル */
+    /* ボタン：より分かりやすく、かつ過激に */
     .stButton > button {{
-        background: rgba(0, 255, 65, 0.05) !important;
+        background: rgba(0, 255, 65, 0.1) !important;
         color: {CONFIG["primary"]} !important;
-        border: 1px solid {CONFIG["primary"]} !important;
-        height: 60px !important;
+        border: 3px solid {CONFIG["primary"]} !important;
+        height: 70px !important;
         width: 100% !important;
         font-family: 'Orbitron' !important;
-        letter-spacing: 2px;
-        transition: 0.3s;
+        font-size: 1.4rem !important;
+        font-weight: bold !important;
+        letter-spacing: 3px;
+        text-shadow: 0 0 10px {CONFIG["primary"]};
+        transition: 0.2s;
+        position: relative;
+        z-index: 1000;
     }}
     .stButton > button:hover {{
-        background: {CONFIG["primary"]} !important;
-        color: black !important;
-        box-shadow: 0 0 40px {CONFIG["primary"]};
+        background: {CONFIG["neon_pink"]} !important;
+        color: white !important;
+        border: 3px solid {CONFIG["neon_pink"]} !important;
+        box-shadow: 0 0 50px {CONFIG["neon_pink"]};
+        transform: translateY(-5px);
     }}
 
-    /* 不要なUIの排除 */
     header, footer {{ visibility: hidden !important; }}
-    [data-testid="stSidebar"] {{ display: none; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -177,18 +183,22 @@ for entry in display_items:
     
     st.markdown(f"""
     <div class="news-card">
-        <div style="color:{CONFIG['neon_pink']}; font-family:'Orbitron'; font-size:0.85rem; margin-bottom:8px;">
-            <span style="opacity:0.7;">●</span> SYNC_TS // {dt} JST
+        <div style="color:{CONFIG['neon_pink']}; font-family:'Orbitron'; font-size:0.9rem; margin-bottom:10px;">
+            <span style="animation: blink 1s infinite;">▶</span> SYNC_TS // {dt} JST
         </div>
         <div><a href="{entry.link}" target="_blank">{entry.title}</a></div>
-        <div style="margin-top:12px; color:rgba(0, 255, 65, 0.5); font-size:0.7rem; font-family:'Roboto Mono';">
-            >> STATUS: DATA_RETRIEVED [OK] <br>
-            >> ORIGIN: GOOGLE_NEWS_NODE_B4
+        <div style="margin-top:15px; color:rgba(0, 255, 65, 0.7); font-size:0.75rem; font-family:'Roboto Mono'; border-top: 1px solid rgba(0,255,65,0.2); padding-top:10px;">
+            >> INTEL_STATUS: VERIFIED <br>
+            >> ACCESS_LEVEL: UNRESTRICTED
         </div>
     </div>
+    <style>
+    @keyframes blink {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: 0; }} }}
+    </style>
     """, unsafe_allow_html=True)
 
+# 分かりやすいボタンへの変更
 if st.session_state.display_count < len(all_items):
-    if st.button(">> DEPLOY_FURTHER_INTEL"):
+    if st.button("[ ADD MORE INTEL ]"):
         st.session_state.display_count += CONFIG["step_display"]
         st.rerun()
