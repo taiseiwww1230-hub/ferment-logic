@@ -5,7 +5,7 @@ import urllib.parse
 import random
 import time
 
-# --- v24.3 TRUE_PULSE (背景強制上書き・パルス統合モデル) ---
+# --- v24.4 CORE_OVERRIDE (背景強制固定・パルス完全実装) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -22,49 +22,50 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="centered")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS:真っ白な背景を打ち破る、強制ライブパルス注入 ---
+# --- CSS: 白背景を破壊し、パルスを強制注入 ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono&display=swap');
     
-    /* 1. 背景の強制上書き：標準テーマを殺し、パルスを挿入 */
-    /* stAppViewContainer 自体の背景色を透明化し、背後のアニメーションを見せる */
-    [data-testid="stAppViewContainer"] {{
-        background: transparent !important;
+    /* 1. 全ての親要素を強制的に黒くし、スクロール領域もパルスさせる */
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
+        background-color: #000804 !important;
+        background-image: none !important; /* 標準の背景を削除 */
     }}
 
-    /* 2. 最下層にアニメーション付き背景（パルス）を配置 */
+    /* 2. 背景レイヤーを「最前面のすぐ後ろ」に固定してパルスを走らせる */
     [data-testid="stAppViewContainer"]::before {{
         content: "";
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
-        /* グリッドと中央の光を統合 */
-        background-color: #000804 !important;
+        /* グリッドと中央の光 */
         background-image: 
             radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.15), transparent 80%),
             linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
             linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px) !important;
         background-size: 100% 100%, 30px 30px, 30px 30px !important;
-        z-index: -2; /* 確実にコンテンツの背後へ */
-        /* 背景全体の明滅アニメーション（ライブパルス） */
-        animation: global-pulse 6s ease-in-out infinite alternate !important;
+        z-index: -1;
+        /* ライブパルスアニメーション */
+        animation: final-pulse 5s ease-in-out infinite alternate !important;
     }}
 
-    @keyframes global-pulse {{
-        0% {{ filter: brightness(0.7) contrast(1); opacity: 0.8; }}
-        100% {{ filter: brightness(1.2) contrast(1.2); opacity: 1; }}
+    @keyframes final-pulse {{
+        0% {{ opacity: 0.6; filter: brightness(0.8) contrast(1); }}
+        100% {{ opacity: 1; filter: brightness(1.3) contrast(1.2); }}
     }}
 
-    /* タイトル、衛星、カード、ボタンのロジックは正常動作を維持 */
+    /* タイトル：文字色を白で固定し、発光させる */
     .title {{
-        color: white !important;
+        color: #FFFFFF !important;
         font-family: 'Orbitron';
         font-size: 1.8rem;
         text-align: center;
         text-shadow: 0 0 15px {CONFIG["neon_blue"]};
-        padding: 20px 0 5px 0;
+        padding: 20px 0 10px 0;
+        letter-spacing: 2px;
     }}
 
+    /* 衛星 */
     .satellite {{
         text-align: center;
         font-size: 3.5rem;
@@ -77,57 +78,48 @@ st.markdown(f"""
         50% {{ transform: translateY(-20px) rotate(10deg); }}
     }}
 
+    /* ニュースカード */
     .news-card {{
-        background: rgba(255, 255, 255, 0.04);
-        border-left: 5px solid {CONFIG["primary"]};
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-left: 5px solid {CONFIG["primary"]} !important;
         padding: 15px;
-        margin-bottom: 12px;
-        border-radius: 2px;
-        transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        animation: fade-in 0.5s ease-out both;
+        margin-bottom: 15px;
+        border-radius: 4px;
+        transition: 0.3s;
     }}
-    @keyframes fade-in {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
-
     .news-card:hover {{
-        background: rgba(255, 255, 255, 0.12);
-        border-left: 5px solid {CONFIG["neon_pink"]};
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-left: 5px solid {CONFIG["neon_pink"]} !important;
         transform: translateX(10px);
-        box-shadow: 0 0 20px rgba(255, 0, 224, 0.2);
     }}
     
     .news-card a {{
         color: {CONFIG["neon_blue"]} !important;
         font-size: 1.1rem;
         font-weight: bold;
-        text-decoration: none;
+        text-decoration: none !important;
     }}
 
+    /* ボタン */
     .stButton > button {{
         background: transparent !important;
         color: {CONFIG["primary"]} !important;
         border: 2px solid {CONFIG["primary"]} !important;
-        font-family: 'Orbitron' !important;
         width: 100% !important;
         height: 50px !important;
-        transition: 0.2s;
+        font-family: 'Orbitron' !important;
     }}
     .stButton > button:hover {{
         background: {CONFIG["primary"]} !important;
-        color: black !important;
-        animation: glitch 0.2s infinite;
+        color: #000 !important;
         box-shadow: 0 0 30px {CONFIG["primary"]};
     }}
-    @keyframes glitch {{
-        0% {{ transform: translate(2px, -2px); }}
-        50% {{ transform: translate(-2px, 2px); }}
-        100% {{ transform: translate(2px, 2px); }}
-    }}
 
-    header, footer {{ visibility: hidden; }}
+    header, footer {{ visibility: hidden !important; }}
 </style>
 """, unsafe_allow_html=True)
 
-# --- RENDERING ENGINE ---
+# --- RENDERING ---
 st.markdown(f'<div class="title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
 st.markdown(f'<div class="satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
 
@@ -144,7 +136,6 @@ all_items = fetch_news()
 JST = timezone(timedelta(hours=+9), 'JST')
 display_items = all_items[:st.session_state.display_count]
 
-# ニュースカード描画（日付とホバーを確実に保持）
 for i, entry in enumerate(display_items):
     try:
         ts = time.mktime(entry.published_parsed)
@@ -152,20 +143,19 @@ for i, entry in enumerate(display_items):
     except: dt = "2026/--/-- --:--"
     
     st.markdown(f"""
-    <div class="news-card" style="animation-delay: {min(i*0.05, 1)}s;">
-        <div style="color:{CONFIG['neon_pink']}; font-family:'Orbitron'; font-size:0.7rem;">SEQUENCE // {dt} JST</div>
+    <div class="news-card">
+        <div style="color:{CONFIG['neon_pink']}; font-family:'Orbitron'; font-size:0.75rem;">SEQUENCE // {dt} JST</div>
         <div style="margin: 8px 0;"><a href="{entry.link}" target="_blank">{entry.title}</a></div>
-        <div style="color:#888; font-size:0.75rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:5px;">
-            [AI_REPORT] SYNC: {random.randint(97,99)}% // ANALYZED
+        <div style="color:rgba(255,255,255,0.5); font-size:0.75rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
+            [AI_LOG] トレンド同期率:{random.randint(95,99)}% // 解析完了。
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-# 最下部のボタン
-st.write("")
+# ボタン
 if st.session_state.display_count < len(all_items):
     if st.button(">> LOAD_MORE_INTELLIGENCE"):
         st.session_state.display_count += CONFIG["step_display"]
         st.rerun()
 else:
-    st.markdown(f"<p style='text-align:center; color:{CONFIG['neon_pink']}; font-family:Orbitron; padding-top:20px;'>-- END OF STREAM --</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center; color:{CONFIG['neon_pink']}; font-family:Orbitron;'>-- END OF DATA STREAM --</p>", unsafe_allow_html=True)
