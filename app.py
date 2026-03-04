@@ -5,7 +5,7 @@ import urllib.parse
 import time
 import re
 
-# --- v25.4 NEURAL_PULSE (FILTER_ENABLED) ---
+# --- v25.6 FINAL_ABSOLUTE (全要素・完全結合モデル) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -17,21 +17,23 @@ CONFIG = {
     "step_display": 15
 }
 
-st.set_page_config(page_title=CONFIG["site_name"], layout="centered")
+# レイアウトをwideに変更しつつ、中央の可読性を自前で制御
+st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS (UIは厳格に維持) ---
+# --- CSS: 究極のサイバーパンク・オーバーレイ ---
 st.markdown(f"""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
     
     html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main {{
         background-color: #000201 !important;
         color: white !important;
     }}
 
+    /* 1. 背景グリッド：ドクン、ドクンという鼓動 (Breathing Grid) */
     [data-testid="stAppViewContainer"]::before {{
         content: "";
         position: fixed;
@@ -44,40 +46,53 @@ st.markdown(f"""
         animation: grid-pulse-extreme 3s ease-in-out infinite alternate;
     }}
 
+    /* 2. スキャンライン & ブラウン管ノイズ (Scanning Line) */
     [data-testid="stAppViewContainer"]::after {{
         content: "";
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: repeating-linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.15),
-            rgba(0, 0, 0, 0.15) 1px,
-            transparent 1px,
-            transparent 2px
-        ), linear-gradient(
-            to bottom,
-            transparent 0%,
-            rgba(0, 255, 65, 0) 40%,
-            rgba(0, 255, 65, 0.3) 50%,
-            rgba(0, 255, 65, 0) 60%,
-            transparent 100%
-        );
+        background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px), 
+                    linear-gradient(to bottom, transparent 0%, rgba(0, 255, 65, 0) 40%, rgba(0, 255, 65, 0.3) 50%, rgba(0, 255, 65, 0) 60%, transparent 100%);
         background-size: 100% 100%, 100% 400%;
         z-index: 9999;
         pointer-events: none;
         animation: scan-line-extreme 4s linear infinite;
     }}
 
-    @keyframes grid-pulse-extreme {{
-        0% {{ opacity: 0.1; transform: scale(1.0); }}
-        100% {{ opacity: 0.7; transform: scale(1.05); }}
+    /* 3. 左右の余白活用：システムパネル (PC専用) */
+    @media (min-width: 1200px) {{
+        .main::before {{
+            content: "101101...DECRYPTING...LOG_STREAM...NODE_77...ANALYZING...VITAL_PULSE_OK...NODE_B4_ACTIVE...SYSTEM_STABLE...01101";
+            position: fixed;
+            left: 25px; top: 100px; width: 150px; height: 80vh;
+            font-family: 'Roboto Mono'; font-size: 0.75rem; color: {CONFIG["primary"]};
+            opacity: 0.3; overflow: hidden; word-break: break-all;
+            writing-mode: vertical-rl; text-orientation: upright;
+            z-index: 10; animation: log-scroll 25s linear infinite;
+        }}
+        .main::after {{
+            content: ">> LATENCY: 22ms\\A >> UPLINK: STABLE\\A >> SECURITY: LEVEL_4\\A >> SOURCE: RSS_GNEWS\\A >> MODE: AUTO_DISCOVERY";
+            white-space: pre; position: fixed;
+            right: 40px; top: 150px; width: 220px;
+            font-family: 'Roboto Mono'; font-size: 0.8rem; color: {CONFIG["neon_blue"]};
+            opacity: 0.5; z-index: 10; border-right: 3px solid {CONFIG["neon_blue"]}; padding-right: 15px;
+            text-align: right; line-height: 2;
+        }}
     }}
 
-    @keyframes scan-line-extreme {{
-        0% {{ background-position: 0% 0%, 0% -100%; }}
-        100% {{ background-position: 0% 0%, 0% 100%; }}
+    /* アニメーション */
+    @keyframes log-scroll {{ 0% {{ transform: translateY(0); }} 100% {{ transform: translateY(-50%); }} }}
+    @keyframes grid-pulse-extreme {{ 0% {{ opacity: 0.1; transform: scale(1.0); }} 100% {{ opacity: 0.7; transform: scale(1.05); }} }}
+    @keyframes scan-line-extreme {{ 0% {{ background-position: 0% 0%, 0% -100%; }} 100% {{ background-position: 0% 0%, 0% 100%; }} }}
+
+    /* メインコンテンツ幅の制限（PC視認性確保） */
+    .block-container {{
+        max-width: 850px !important;
+        padding-top: 2rem !important;
+        z-index: 100;
     }}
 
+    /* タイトル（要望通り小さめに微調整: 1.8rem） */
     .title {{
         color: #FFFFFF !important;
         font-family: 'Orbitron';
@@ -90,6 +105,7 @@ st.markdown(f"""
         z-index: 100;
     }}
 
+    /* 衛星アイコン */
     .satellite {{
         text-align: center;
         font-size: 5rem;
@@ -97,12 +113,14 @@ st.markdown(f"""
         animation: satellite-float 4s ease-in-out infinite;
         position: relative;
         z-index: 100;
+        margin-bottom: 20px;
     }}
-    @keyframes satellite-float {{
-        0%, 100% {{ transform: translateY(0) scale(1.0); }}
-        50% {{ transform: translateY(-25px) scale(1.1); }}
+    @keyframes satellite-float {{ 
+        0%, 100% {{ transform: translateY(0) scale(1.0); }} 
+        50% {{ transform: translateY(-25px) scale(1.1); }} 
     }}
 
+    /* ニュースカード (UI厳守) */
     .news-card {{
         background: rgba(0, 10, 5, 0.9) !important;
         border: 2px solid rgba(0, 255, 65, 0.4) !important;
@@ -119,7 +137,6 @@ st.markdown(f"""
         transform: scale(1.03);
         box-shadow: 0 0 40px rgba(255, 0, 224, 0.3);
     }}
-    
     .news-card a {{
         color: #FFFFFF !important;
         text-shadow: 0 0 5px {CONFIG["neon_blue"]};
@@ -128,6 +145,7 @@ st.markdown(f"""
         text-decoration: none !important;
     }}
 
+    /* 追加ボタン (分かりやすく・かつ過激に) */
     .stButton > button {{
         background: rgba(0, 255, 65, 0.1) !important;
         color: {CONFIG["primary"]} !important;
@@ -142,6 +160,7 @@ st.markdown(f"""
         transition: 0.2s;
         position: relative;
         z-index: 1000;
+        margin-top: 20px;
     }}
     .stButton > button:hover {{
         background: {CONFIG["neon_pink"]} !important;
@@ -155,7 +174,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 内部ロジック: 重複排除エンジンの実装 ---
+# --- 内部ロジック: 重複排除・データ取得 ---
 @st.cache_data(ttl=1800)
 def fetch_news():
     q = urllib.parse.quote(CONFIG["query"])
@@ -166,10 +185,9 @@ def fetch_news():
     seen_titles = set()
 
     for entry in entries:
-        # タイトルを正規化（空白削除、一部記号削除）して比較
+        # 重複排除: タイトルの類似性をチェック
         norm_title = re.sub(r'[\s\-｜｜]', '', entry.title)
-        # 前半30文字程度が一致すれば重複とみなすロジック（ニュースタイトルの微差を排除）
-        title_fingerprint = norm_title[:30] 
+        title_fingerprint = norm_title[:30] # 冒頭30文字が被ったら除外
 
         if title_fingerprint not in seen_titles:
             unique_entries.append(entry)
@@ -178,7 +196,7 @@ def fetch_news():
     unique_entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
     return unique_entries
 
-# --- データの描画 ---
+# --- 描画エンジン ---
 st.markdown(f'<div class="title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
 st.markdown(f'<div class="satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
 
@@ -190,7 +208,8 @@ for entry in display_items:
     try:
         ts = time.mktime(entry.published_parsed)
         dt = datetime.fromtimestamp(ts, timezone.utc).astimezone(JST).strftime('%Y/%m/%d %H:%M')
-    except: dt = "2026/--/-- --:--"
+    except:
+        dt = "DATA_SYNC_ERROR"
     
     st.markdown(f"""
     <div class="news-card">
@@ -208,6 +227,7 @@ for entry in display_items:
     </style>
     """, unsafe_allow_html=True)
 
+# ページ下部の追加読み込み
 if st.session_state.display_count < len(all_items):
     if st.button("[ ADD MORE INTEL ]"):
         st.session_state.display_count += CONFIG["step_display"]
