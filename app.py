@@ -5,7 +5,7 @@ import urllib.parse
 import time
 import re
 
-# --- CONFIG ---
+# --- CONFIG (厳守) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -22,55 +22,45 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: 網目の色を濃い緑に変更（他は完全維持） ---
+# --- CSS: 網目の視認性確保（構造変更・他は維持） ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
     
-    /* 暗黒背景の基盤 */
+    /* 1. 暗黒の基盤（いじらない） */
     [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main, .block-container {{
         background-color: #000201 !important;
         background: #000201 !important;
     }}
 
-    /* ★修正：網目（グリッド）の色を濃い緑（#00FF41）に変更★ */
-    .stApp {{
+    /* 2. ★網目（グリッド）の強制可視化ロジック★ */
+    /* stAppの背後に直接描画するのではなく、オーバーレイとして配置 */
+    .stApp::after {{
+        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             linear-gradient({CONFIG["primary"]} 1px, transparent 1px), 
             linear-gradient(90deg, {CONFIG["primary"]} 1px, transparent 1px);
         background-size: 50px 50px;
-        background-attachment: fixed;
-        opacity: 1; /* 親要素の透明度を確保 */
-    }}
-    /* グリッド自体の主張が強すぎないよう、背景レイヤーとして透過度を微調整（0.3） */
-    .stApp > div {{
-        position: relative;
-        z-index: 1;
-    }}
-    .stApp::after {{
-        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            linear-gradient(rgba(0, 255, 65, 0.3) 1px, transparent 1px), 
-            linear-gradient(90deg, rgba(0, 255, 65, 0.3) 1px, transparent 1px);
-        background-size: 50px 50px;
-        z-index: -1;
+        /* 透過度を0.25まで引き上げ、確実に「濃い緑」として認識させる */
+        opacity: 0.25; 
+        z-index: 0; 
         pointer-events: none;
     }}
 
-    /* 細い光線（4秒周期）：厳守 */
+    /* 3. ★細い光線（4秒周期・厳守）★ */
     .stApp::before {{
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: linear-gradient(to bottom, 
-            transparent 48%, 
-            rgba(0, 255, 65, 0.4) 50%, 
-            transparent 52%);
+            transparent 49.5%, 
+            {CONFIG["primary"]} 50%, 
+            transparent 50.5%);
         background-size: 100% 200%;
         z-index: 10; pointer-events: none;
         animation: scan-slim-flow 4s linear infinite;
     }}
 
-    /* UI、ヘッダー、カード、ボタン：一切変更なし */
-    .main .block-container {{ max-width: 1000px !important; padding-top: 3rem !important; }}
+    /* 4. UI構造（一切いじらない） */
+    .main .block-container {{ max-width: 1000px !important; padding-top: 3rem !important; position: relative; z-index: 5; }}
     .header-box {{ text-align: center; margin-bottom: 50px; position: relative; }}
     .title-main {{ color: #FFFFFF; font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 12px; text-shadow: 0 0 20px {CONFIG["primary"]}; margin-top: 25px; }}
     .sat-icon {{ font-size: 6rem; filter: drop-shadow(0 0 35px {CONFIG["primary"]}); animation: float 4s ease-in-out infinite; }}
