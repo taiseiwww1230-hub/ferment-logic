@@ -3,8 +3,9 @@ import feedparser
 from datetime import datetime, timedelta, timezone
 import urllib.parse
 import time
+import re
 
-# --- v25.3 NEURAL_PULSE (TITLE_SIZE_TUNED) ---
+# --- v25.4 NEURAL_PULSE (FILTER_ENABLED) ---
 CONFIG = {
     "site_name": "FERMENT-LOGIC // INTELLIGENCE",
     "editor_avatar": "🛰️",
@@ -21,7 +22,7 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="centered")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: ライブパルス・エンジン（タイトルサイズ微調整版） ---
+# --- CSS (UIは厳格に維持) ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono&display=swap');
@@ -31,7 +32,6 @@ st.markdown(f"""
         color: white !important;
     }}
 
-    /* 1. 背景グリッド：より深い鼓動 */
     [data-testid="stAppViewContainer"]::before {{
         content: "";
         position: fixed;
@@ -44,7 +44,6 @@ st.markdown(f"""
         animation: grid-pulse-extreme 3s ease-in-out infinite alternate;
     }}
 
-    /* 2. 強烈なスキャンライン & デジタルノイズ */
     [data-testid="stAppViewContainer"]::after {{
         content: "";
         position: fixed;
@@ -79,11 +78,10 @@ st.markdown(f"""
         100% {{ background-position: 0% 0%, 0% 100%; }}
     }}
 
-    /* タイトル：文字サイズを微小化しつつ爆光を維持 */
     .title {{
         color: #FFFFFF !important;
         font-family: 'Orbitron';
-        font-size: 1.8rem; /* 2.2remから縮小 */
+        font-size: 1.8rem;
         text-align: center;
         text-shadow: 0 0 15px {CONFIG["primary"]}, 0 0 30px {CONFIG["neon_blue"]}, 0 0 60px {CONFIG["neon_blue"]};
         padding: 40px 0 10px 0;
@@ -105,7 +103,6 @@ st.markdown(f"""
         50% {{ transform: translateY(-25px) scale(1.1); }}
     }}
 
-    /* ニュースカード */
     .news-card {{
         background: rgba(0, 10, 5, 0.9) !important;
         border: 2px solid rgba(0, 255, 65, 0.4) !important;
@@ -131,7 +128,6 @@ st.markdown(f"""
         text-decoration: none !important;
     }}
 
-    /* ボタン */
     .stButton > button {{
         background: rgba(0, 255, 65, 0.1) !important;
         color: {CONFIG["primary"]} !important;
@@ -159,17 +155,32 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# --- データの描画 ---
-st.markdown(f'<div class="title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
-st.markdown(f'<div class="satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
-
+# --- 内部ロジック: 重複排除エンジンの実装 ---
 @st.cache_data(ttl=1800)
 def fetch_news():
     q = urllib.parse.quote(CONFIG["query"])
     f = feedparser.parse(f"https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja")
     entries = f.entries
-    entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
-    return entries
+    
+    unique_entries = []
+    seen_titles = set()
+
+    for entry in entries:
+        # タイトルを正規化（空白削除、一部記号削除）して比較
+        norm_title = re.sub(r'[\s\-｜｜]', '', entry.title)
+        # 前半30文字程度が一致すれば重複とみなすロジック（ニュースタイトルの微差を排除）
+        title_fingerprint = norm_title[:30] 
+
+        if title_fingerprint not in seen_titles:
+            unique_entries.append(entry)
+            seen_titles.add(title_fingerprint)
+    
+    unique_entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
+    return unique_entries
+
+# --- データの描画 ---
+st.markdown(f'<div class="title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
 
 all_items = fetch_news()
 JST = timezone(timedelta(hours=+9), 'JST')
