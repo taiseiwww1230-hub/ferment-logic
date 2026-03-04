@@ -22,44 +22,45 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: 網目の視認性確保（構造変更・他は維持） ---
+# --- CSS: 網目・光線の微調整（他は維持） ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
     
-    /* 1. 暗黒の基盤（いじらない） */
+    /* 暗黒の基盤（いじらない） */
     [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main, .block-container {{
         background-color: #000201 !important;
         background: #000201 !important;
     }}
 
-    /* 2. ★網目（グリッド）の強制可視化ロジック★ */
-    /* stAppの背後に直接描画するのではなく、オーバーレイとして配置 */
+    /* ★修正1：網目を気持ち薄く（透過度 0.25 -> 0.15）★ */
     .stApp::after {{
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             linear-gradient({CONFIG["primary"]} 1px, transparent 1px), 
             linear-gradient(90deg, {CONFIG["primary"]} 1px, transparent 1px);
         background-size: 50px 50px;
-        /* 透過度を0.25まで引き上げ、確実に「濃い緑」として認識させる */
-        opacity: 0.25; 
+        opacity: 0.15; /* ここを調整 */
         z-index: 0; 
         pointer-events: none;
     }}
 
-    /* 3. ★細い光線（4秒周期・厳守）★ */
+    /* ★修正2：光線を靄（もや）っぽく（グラデーションをぼかす）★ */
     .stApp::before {{
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: linear-gradient(to bottom, 
-            transparent 49.5%, 
-            {CONFIG["primary"]} 50%, 
-            transparent 50.5%);
+            transparent 0%, 
+            transparent 45%, 
+            {CONFIG["primary"]} 50%, /* 中央をCONFIGと同じグリーンに */
+            transparent 55%, 
+            transparent 100%);
         background-size: 100% 200%;
         z-index: 10; pointer-events: none;
         animation: scan-slim-flow 4s linear infinite;
+        filter: blur(2px); /* 靄っぽさを出すために少しぼかす */
     }}
 
-    /* 4. UI構造（一切いじらない） */
+    /* UI構造（一切いじらない・死守） */
     .main .block-container {{ max-width: 1000px !important; padding-top: 3rem !important; position: relative; z-index: 5; }}
     .header-box {{ text-align: center; margin-bottom: 50px; position: relative; }}
     .title-main {{ color: #FFFFFF; font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 12px; text-shadow: 0 0 20px {CONFIG["primary"]}; margin-top: 25px; }}
@@ -87,7 +88,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# --- LOGIC & RENDERING (変更なし) ---
+# --- LOGIC & RENDERING ---
 @st.cache_data(ttl=60)
 def fetch_news():
     q = urllib.parse.quote(CONFIG["query"])
@@ -100,6 +101,10 @@ def fetch_news():
         if fp not in seen:
             unique_entries.append(entry)
             seen.add(fp)
+            
+    # ★修正3：ニュースを時系列（降順）でソート★
+    unique_entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
+    
     return unique_entries
 
 st.markdown(f'<div class="header-box"><div class="sat-icon">{CONFIG["editor_avatar"]}</div><div class="title-main">{CONFIG["site_name"]}</div></div>', unsafe_allow_html=True)
