@@ -22,102 +22,79 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: 限界突破の背景支配ロジック ---
+# --- CSS: 基盤情報の完全固定と余白の装飾 ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
     
-    /* 1. 全てのStreamlit標準背景を「透明」へ強制上書き */
-    [data-testid="stAppViewContainer"], 
-    [data-testid="stHeader"], 
-    .main, 
-    .block-container {{
-        background: transparent !important;
+    /* 1. 背景の暗黒化とグリッドの復活 */
+    [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main {{
+        background-color: #000201 !important;
     }}
-
-    /* 2. 最背面（html自体）に「あからさまな」サイバー背景を配置 */
-    html {{
-        background-color: #000502 !important;
-        /* あえて太く、光らせたグリッド */
+    .stApp {{
         background-image: 
-            linear-gradient(rgba(0, 255, 65, 0.2) 2px, transparent 2px),
-            linear-gradient(90deg, rgba(0, 255, 65, 0.2) 2px, transparent 2px);
-        background-size: 60px 60px;
+            linear-gradient(rgba(0, 255, 65, 0.15) 1.5px, transparent 1.5px), 
+            linear-gradient(90deg, rgba(0, 255, 65, 0.15) 1.5px, transparent 1.5px);
+        background-size: 50px 50px;
         background-attachment: fixed;
-        animation: deep-pulse 5s ease-in-out infinite alternate;
     }}
 
-    /* 3. 画面全体を走る「あからさまな」スキャンライン */
-    html::after {{
-        content: "";
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(
-            to bottom,
-            transparent 0%,
-            rgba(0, 255, 65, 0) 45%,
-            rgba(0, 255, 65, 0.4) 50%,
-            rgba(0, 255, 65, 0) 55%,
-            transparent 100%
-        );
-        background-size: 100% 400%;
-        z-index: 9999;
-        pointer-events: none;
-        animation: hyper-scan 3s linear infinite;
+    /* 2. 重厚なスキャンライン（減速） */
+    [data-testid="stAppViewContainer"]::after {{
+        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, transparent 0%, rgba(0, 255, 65, 0.15) 50%, transparent 100%);
+        background-size: 100% 400%; z-index: 1000; pointer-events: none;
+        animation: scan-slow 8s linear infinite;
     }}
 
-    /* 4. メインコンテンツの浮き上がり */
-    .block-container {{
-        max-width: 900px !important;
-        padding-top: 5rem !important;
+    /* 3. 両端の余白を埋める「システム・オーバーレイ」 */
+    @media (min-width: 1200px) {{
+        body::before {{
+            content: "SYS_COORDINATES: 35.6895° N, 139.6917° E // NODE_ACTIVE // 100111001";
+            position: fixed; left: 30px; top: 50%; writing-mode: vertical-rl;
+            font-family: 'Roboto Mono'; font-size: 0.8rem; color: {CONFIG["primary"]}; opacity: 0.4; z-index: 5;
+        }}
+        body::after {{
+            content: ">> DATABASE_INTEL_STREAM\\A >> ENCRYPTED_CONNECTION\\A >> STATUS: SECURE";
+            white-space: pre; position: fixed; right: 30px; top: 50%;
+            font-family: 'Roboto Mono'; font-size: 0.8rem; color: {CONFIG["neon_blue"]}; opacity: 0.4; z-index: 5;
+            border-right: 2px solid {CONFIG["neon_blue"]}; padding-right: 10px;
+        }}
     }}
 
-    .header-box {{ text-align: center; margin-bottom: 60px; position: relative; }}
+    /* 4. コンテンツ配置の最適化 */
+    .main .block-container {{
+        max-width: 900px !important; padding: 2rem 0 !important;
+    }}
+
+    /* タイトル & 衛星 */
+    .header-box {{ text-align: center; margin-bottom: 40px; }}
     .title-main {{
-        color: #FFFFFF; font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 12px;
-        text-shadow: 0 0 20px {CONFIG["primary"]}, 0 0 40px {CONFIG["neon_blue"]};
-        margin-top: 25px;
+        color: #FFFFFF; font-family: 'Orbitron'; font-size: 2rem; letter-spacing: 10px;
+        text-shadow: 0 0 15px {CONFIG["primary"]}; margin-top: 20px;
     }}
-    .sat-icon {{
-        font-size: 6rem; filter: drop-shadow(0 0 35px {CONFIG["primary"]});
-        animation: hyper-float 4s ease-in-out infinite;
-    }}
+    .sat-icon {{ font-size: 6rem; filter: drop-shadow(0 0 25px {CONFIG["primary"]}); animation: float 4s ease-in-out infinite; }}
 
-    /* ニュースカード：背景を少し濃くして視認性確保 */
+    /* ニュースカード */
     .news-card {{
-        background: rgba(0, 8, 4, 0.92) !important;
-        border: 2px solid {CONFIG["primary"]} !important;
-        box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
-        padding: 30px; margin-bottom: 25px; border-left: 12px solid {CONFIG["primary"]} !important;
-        transition: 0.3s;
+        background: rgba(0, 12, 6, 0.95); border: 1px solid {CONFIG["primary"]};
+        border-left: 10px solid {CONFIG["primary"]}; padding: 30px; margin-bottom: 25px;
+        transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }}
-    .news-card:hover {{
-        border-color: {CONFIG["neon_pink"]} !important;
-        border-left: 12px solid {CONFIG["neon_pink"]} !important;
-        transform: scale(1.02) translateY(-5px);
-        box-shadow: 0 0 40px rgba(255, 0, 224, 0.3);
-    }}
-    .news-card a {{
-        color: white !important; font-size: 1.4rem; font-weight: 900;
-        text-decoration: none !important; text-shadow: 0 0 10px {CONFIG["neon_blue"]};
-    }}
+    .news-card:hover {{ border-color: {CONFIG["neon_pink"]}; border-left-color: {CONFIG["neon_pink"]}; transform: scale(1.03); }}
+    .news-card a {{ color: white !important; font-size: 1.3rem; font-weight: 900; text-decoration: none !important; text-shadow: 0 0 5px {CONFIG["neon_blue"]}; }}
 
-    /* ボタンコンソール（洗練版） */
+    /* ボタンコンソール */
     .stButton > button {{
-        height: 65px !important; border-radius: 0px !important; font-family: 'Orbitron' !important;
-        font-size: 1.2rem !important; font-weight: bold !important;
-        background: rgba(0, 255, 65, 0.1) !important; border: 3px solid {CONFIG["primary"]} !important;
-        color: {CONFIG["primary"]} !important; transition: 0.3s !important; width: 100% !important;
+        height: 60px !important; width: 100% !important; border-radius: 0px !important;
+        font-family: 'Orbitron' !important; font-size: 1.1rem !important;
+        background: rgba(0, 255, 65, 0.05) !important; border: 2px solid {CONFIG["primary"]} !important;
+        color: {CONFIG["primary"]} !important; transition: 0.3s !important;
     }}
-    .stButton > button:hover {{
-        background: {CONFIG["neon_pink"]} !important; color: white !important;
-        border-color: {CONFIG["neon_pink"]} !important; box-shadow: 0 0 40px {CONFIG["neon_pink"]};
-    }}
+    .stButton > button:hover {{ background: {CONFIG["neon_pink"]} !important; color: white !important; box-shadow: 0 0 40px {CONFIG["neon_pink"]}; }}
 
-    /* アニメーション定義 */
-    @keyframes deep-pulse {{ 0% {{ opacity: 0.3; }} 100% {{ opacity: 0.8; }} }}
-    @keyframes hyper-scan {{ 0% {{ background-position: 0 -100%; }} 100% {{ background-position: 0 300%; }} }}
-    @keyframes hyper-float {{ 0%, 100% {{ transform: translateY(0) scale(1.0); }} 50% {{ transform: translateY(-25px) scale(1.1); }} }}
-
+    @keyframes scan-slow {{ 0% {{ background-position: 0 -100%; }} 100% {{ background-position: 0 300%; }} }}
+    @keyframes float {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-20px); }} }}
     header, footer {{ visibility: hidden !important; }}
 </style>
 """, unsafe_allow_html=True)
@@ -138,7 +115,6 @@ def fetch_news():
     return unique_entries
 
 # --- RENDERING ---
-
 st.markdown(f"""
 <div class="header-box">
     <div class="sat-icon">{CONFIG["editor_avatar"]}</div>
@@ -154,23 +130,21 @@ for entry in display_items:
     dt = datetime.fromtimestamp(time.mktime(entry.published_parsed), timezone.utc).astimezone(JST).strftime('%Y/%m/%d %H:%M') if entry.get('published_parsed') else "2026/--/--"
     st.markdown(f"""
     <div class="news-card">
-        <div style="color:{CONFIG['neon_pink']}; font-family:'Roboto Mono'; font-size:1rem; margin-bottom:12px; font-weight:bold;">
-            [ ACCESS_POINT // {dt} ]
+        <div style="color:{CONFIG['neon_pink']}; font-family:'Roboto Mono'; font-size:0.9rem; margin-bottom:10px;">
+            // SYNC_TS: {dt}
         </div>
         <a href="{entry.link}" target="_blank">{entry.title}</a>
     </div>
     """, unsafe_allow_html=True)
 
-# 下部操作エリア
-st.markdown('<div style="margin-top:50px;"></div>', unsafe_allow_html=True)
-col1, col2 = st.columns([1, 1])
-
-with col1:
+# 下部コンソール
+st.markdown('<div style="height:40px;"></div>', unsafe_allow_html=True)
+c1, c2 = st.columns([1, 1])
+with c1:
     if st.button("EXPAND DATABASE"):
         st.session_state.display_count += CONFIG["step_display"]
         st.rerun()
-
-with col2:
+with c2:
     if st.session_state.display_count > CONFIG["initial_display"]:
         if st.button("DEFRAG SYSTEM"):
             st.session_state.display_count = CONFIG["initial_display"]
