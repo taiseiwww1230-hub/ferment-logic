@@ -22,89 +22,65 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: 光線の速度のみを調整（他は厳密に維持） ---
+# --- CSS: 白い鼓動を削除、光線をさらに低速化 ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
     
-    /* 暗黒背景の絶対固定 */
+    /* 暗黒背景：絶対維持 */
     [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main, .block-container {{
         background-color: #000201 !important;
         background: #000201 !important;
     }}
 
-    /* 背景グリッド：鼓動（ハートビート） */
+    /* 背景グリッド：白い鼓動（アニメーション）を削除し、静止 */
     .stApp {{
         background-image: 
-            linear-gradient(rgba(0, 255, 65, 0.15) 1.5px, transparent 1.5px), 
-            linear-gradient(90deg, rgba(0, 255, 65, 0.15) 1.5px, transparent 1.5px);
+            linear-gradient(rgba(0, 255, 65, 0.12) 1.5px, transparent 1.5px), 
+            linear-gradient(90deg, rgba(0, 255, 65, 0.12) 1.5px, transparent 1.5px);
         background-size: 55px 55px;
         background-attachment: fixed;
-        animation: grid-heartbeat 1.2s ease-in-out infinite;
+        /* アニメーションを削除 */
     }}
 
-    /* ★修正点：スキャンライン（光線）を12秒かけてゆっくり動かす★ */
+    /* ★修正点：スキャンライン（光線）を24秒かけて極限までゆっくり動かす★ */
     .stApp::before {{
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(to bottom, transparent 0%, rgba(0, 255, 65, 0.25) 50%, transparent 51%, transparent 100%);
+        background: linear-gradient(to bottom, transparent 0%, rgba(0, 255, 65, 0.2) 50%, transparent 51%, transparent 100%);
         background-size: 100% 400%; z-index: 10; pointer-events: none;
-        animation: scan-slow 12s linear infinite; /* 6s -> 12s に低速化 */
+        animation: scan-ultra-slow 24s linear infinite; 
     }}
 
-    /* UI幅の維持 */
-    .main .block-container {{
-        max-width: 1000px !important;
-        padding-top: 3rem !important;
-    }}
-
-    /* ヘッダー */
+    /* UI幅、ヘッダー、カード、ボタンのスタイルを厳格に維持（いじらない） */
+    .main .block-container {{ max-width: 1000px !important; padding-top: 3rem !important; }}
     .header-box {{ text-align: center; margin-bottom: 50px; position: relative; }}
-    .title-main {{
-        color: #FFFFFF; font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 12px;
-        text-shadow: 0 0 20px {CONFIG["primary"]}; margin-top: 25px;
-    }}
+    .title-main {{ color: #FFFFFF; font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 12px; text-shadow: 0 0 20px {CONFIG["primary"]}; margin-top: 25px; }}
     .sat-icon {{ font-size: 6rem; filter: drop-shadow(0 0 35px {CONFIG["primary"]}); animation: float 4s ease-in-out infinite; }}
 
-    /* ニュースカード */
     .news-card {{
         background: rgba(0, 15, 5, 0.95) !important;
         border: 1px solid {CONFIG["primary"]} !important;
         border-left: 12px solid {CONFIG["primary"]} !important;
-        padding: 30px; margin-bottom: 30px;
-        transition: 0.3s;
+        padding: 30px; margin-bottom: 30px; transition: 0.3s;
     }}
-    .news-card:hover {{
-        border-color: {CONFIG["neon_pink"]} !important;
-        border-left-color: {CONFIG["neon_pink"]} !important;
-        transform: translateX(10px) scale(1.02);
-        box-shadow: 0 0 40px rgba(255, 0, 224, 0.3);
-    }}
-    .news-card a {{
-        color: white !important; font-size: 1.4rem; font-weight: 900;
-        text-decoration: none !important; text-shadow: 0 0 8px {CONFIG["neon_blue"]};
-    }}
+    .news-card:hover {{ border-color: {CONFIG["neon_pink"]} !important; border-left-color: {CONFIG["neon_pink"]} !important; transform: translateX(10px) scale(1.02); box-shadow: 0 0 40px rgba(255, 0, 224, 0.3); }}
+    .news-card a {{ color: white !important; font-size: 1.4rem; font-weight: 900; text-decoration: none !important; text-shadow: 0 0 8px {CONFIG["neon_blue"]}; }}
 
-    /* ボタン構成 */
     .stButton > button {{
         height: 65px !important; border: 3px solid {CONFIG["primary"]} !important;
         background: rgba(0, 255, 65, 0.05) !important; color: {CONFIG["primary"]} !important;
         font-family: 'Orbitron' !important; font-size: 1.2rem !important; border-radius: 0px !important;
     }}
-    .stButton > button:hover {{
-        background: {CONFIG["neon_pink"]} !important; color: white !important; border-color: {CONFIG["neon_pink"]} !important;
-    }}
+    .stButton > button:hover {{ background: {CONFIG["neon_pink"]} !important; color: white !important; border-color: {CONFIG["neon_pink"]} !important; }}
 
-    @keyframes grid-heartbeat {{
-        0%, 100% {{ transform: scale(1.0); opacity: 0.6; }}
-        10% {{ transform: scale(1.02); opacity: 1; }}
-    }}
-    @keyframes scan-slow {{ 0% {{ background-position: 0 -100%; }} 100% {{ background-position: 0 300%; }} }}
+    /* アニメーション定義 */
+    @keyframes scan-ultra-slow {{ 0% {{ background-position: 0 -100%; }} 100% {{ background-position: 0 300%; }} }}
     @keyframes float {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-20px); }} }}
     header, footer {{ visibility: hidden !important; }}
 </style>
 """, unsafe_allow_html=True)
 
-# --- LOGIC ---
+# --- LOGIC & RENDERING (変更なし) ---
 @st.cache_data(ttl=60)
 def fetch_news():
     q = urllib.parse.quote(CONFIG["query"])
@@ -119,7 +95,6 @@ def fetch_news():
             seen.add(fp)
     return unique_entries
 
-# --- RENDERING ---
 st.markdown(f'<div class="header-box"><div class="sat-icon">{CONFIG["editor_avatar"]}</div><div class="title-main">{CONFIG["site_name"]}</div></div>', unsafe_allow_html=True)
 
 all_items = fetch_news()
