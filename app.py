@@ -17,153 +17,227 @@ CONFIG = {
     "step_display": 15
 }
 
+# layout="wide" で全画面を解放
 st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: 限界突破の視覚支配ロジック ---
+# --- CSS: 白転撲滅 & メトリクス固定ロジック ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
     
-    /* 1. 暗黒空間の強制確保（すべての層を透明化） */
-    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main, .block-container {{
-        background-color: transparent !important;
-        background: transparent !important;
-    }}
-
-    /* 2. htmlの最底辺に「あからさまな」背景を固定 */
+    /* 1. 根本的なフレーム破壊：html自体の背景を暗黒に */
     html {{
-        background-color: #000402 !important;
-        /* 網目（グリッド）を拡大縮小させて「鼓動」を表現 */
+        background-color: #000201 !important;
+    }}
+
+    /* 2. Streamlitの標準背景を「透明」へ強制上書き（白転撲滅） */
+    [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main, .block-container {{
+        background: transparent !important;
+        color: white !important;
+    }}
+
+    /* 3. 背景グリッド：透明なコンテナの下で鼓動 */
+    body::before {{
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
         background-image: 
-            linear-gradient(rgba(0, 255, 65, 0.2) 2px, transparent 2px), 
-            linear-gradient(90deg, rgba(0, 255, 65, 0.2) 2px, transparent 2px);
+            linear-gradient(rgba(0, 255, 65, 0.15) 2px, transparent 2px),
+            linear-gradient(90deg, rgba(0, 255, 65, 0.15) 2px, transparent 2px);
         background-size: 50px 50px;
-        background-position: center center;
-        animation: grid-heartbeat 1.5s ease-in-out infinite; /* 1.5秒周期の鼓動 */
+        z-index: 0;
+        animation: grid-pulse-extreme 3s ease-in-out infinite alternate;
     }}
 
-    /* 3. あからさまな「心電図パルス」 */
-    html::before {{
-        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent 0%, {CONFIG["primary"]} 50%, transparent 100%);
-        -webkit-mask-image: linear-gradient(0deg, transparent 49%, #fff 50%, transparent 51%);
-        opacity: 0.6; z-index: -1;
-        animation: pulse-horizontal 4s linear infinite;
+    /* 4. スキャンライン（減速） */
+    body::after {{
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.15),
+            rgba(0, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+        ), linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(0, 255, 65, 0) 40%,
+            rgba(0, 255, 65, 0.3) 50%,
+            rgba(0, 255, 65, 0) 60%,
+            transparent 100%
+        );
+        background-size: 100% 100%, 100% 400%;
+        z-index: 9999;
+        pointer-events: none;
+        animation: scan-line-extreme 4s linear infinite;
     }}
 
-    /* 4. あからさまな「スキャン光線」の復活 */
-    html::after {{
-        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(to bottom, transparent 0%, rgba(0, 255, 65, 0.4) 50%, transparent 50.5%, transparent 100%);
-        background-size: 100% 200%;
-        z-index: 9999; pointer-events: none;
-        animation: scan-ray 5s linear infinite; /* 5秒で一巡する光線 */
+    @keyframes grid-pulse-extreme {{
+        0% {{ opacity: 0.1; transform: scale(1.0); }}
+        100% {{ opacity: 0.7; transform: scale(1.05); }}
     }}
 
-    /* アニメーション定義 */
-    @keyframes grid-heartbeat {{
-        0%, 100% {{ background-size: 50px 50px; opacity: 0.5; }}
-        10% {{ background-size: 55px 55px; opacity: 1; }} /* 収縮 */
-        20% {{ background-size: 50px 50px; opacity: 0.8; }}
-        30% {{ background-size: 52px 52px; opacity: 1; }} /* 二度打ち */
-    }}
-    @keyframes pulse-horizontal {{
-        0% {{ transform: translateX(-100%); opacity: 0; }}
-        50% {{ opacity: 0.8; }}
-        100% {{ transform: translateX(100%); opacity: 0; }}
-    }}
-    @keyframes scan-ray {{
-        0% {{ background-position: 0 -100%; }}
-        100% {{ background-position: 0 100%; }}
+    @keyframes scan-line-extreme {{
+        0% {{ background-position: 0% 0%, 0% -100%; }}
+        100% {{ background-position: 0% 0%, 0% 100%; }}
     }}
 
-    /* コンテンツエリア */
-    .block-container {{ max-width: 900px !important; padding-top: 4rem !important; }}
-    .header-box {{ text-align: center; margin-bottom: 50px; }}
-    .title-main {{
-        color: #FFFFFF; font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 12px;
-        text-shadow: 0 0 25px {CONFIG["primary"]}; margin-top: 25px;
+    /* メインコンテンツ幅の制限 */
+    .block-container {{
+        max-width: 850px !important;
+        padding-top: 2rem !important;
+        z-index: 100;
+        margin: auto !important;
     }}
-    .sat-icon {{ font-size: 6rem; filter: drop-shadow(0 0 40px {CONFIG["primary"]}); animation: float 3s ease-in-out infinite; }}
+
+    /* タイトル（要望通り小さめに微調整: 1.8rem） */
+    .title {{
+        color: #FFFFFF !important;
+        font-family: 'Orbitron';
+        font-size: 1.8rem;
+        text-align: center;
+        text-shadow: 0 0 15px {CONFIG["primary"]}, 0 0 30px {CONFIG["neon_blue"]}, 0 0 60px {CONFIG["neon_blue"]};
+        padding: 40px 0 10px 0;
+        letter-spacing: 8px;
+        position: relative;
+        z-index: 100;
+    }}
+
+    .satellite {{
+        text-align: center;
+        font-size: 5rem;
+        filter: drop-shadow(0 0 40px {CONFIG["primary"]});
+        animation: satellite-float 4s ease-in-out infinite;
+        position: relative;
+        z-index: 100;
+    }}
+    @keyframes satellite-float {{
+        0%, 100% {{ transform: translateY(0) scale(1.0); }}
+        50% {{ transform: translateY(-25px) scale(1.1); }}
+    }}
+
+    /* 5. 右上固定メトリクス（文字被り対策・高優先度） */
+    .side-metrics {{
+        position: fixed;
+        right: 40px; top: 120px; width: 220px;
+        font-family: 'Roboto Mono'; font-size: 0.85rem; color: {CONFIG["neon_blue"]};
+        opacity: 0.8; z-index: 2000; border-right: 4px solid {CONFIG["neon_blue"]};
+        padding-right: 15px; text-align: right; line-height: 1.8;
+    }}
 
     /* ニュースカード */
     .news-card {{
         background: rgba(0, 10, 5, 0.9) !important;
-        border: 2px solid {CONFIG["primary"]} !important;
-        border-left: 15px solid {CONFIG["primary"]} !important;
-        padding: 30px; margin-bottom: 25px; transition: 0.2s;
+        border: 2px solid rgba(0, 255, 65, 0.4) !important;
+        border-left: 8px solid {CONFIG["primary"]} !important;
+        padding: 25px;
+        margin-bottom: 25px;
+        transition: 0.2s ease-out;
+        position: relative;
+        z-index: 100;
     }}
     .news-card:hover {{
-        border-color: {CONFIG["neon_pink"]} !important;
-        border-left-color: {CONFIG["neon_pink"]} !important;
-        transform: scale(1.02); box-shadow: 0 0 50px rgba(255, 0, 224, 0.4);
+        border: 2px solid {CONFIG["neon_pink"]} !important;
+        border-left: 8px solid {CONFIG["neon_pink"]} !important;
+        transform: scale(1.03);
+        box-shadow: 0 0 40px rgba(255, 0, 224, 0.3);
     }}
-    .news-card a {{ color: white !important; font-size: 1.4rem; font-weight: 900; text-decoration: none !important; }}
+    
+    .news-card a {{
+        color: #FFFFFF !important;
+        text-shadow: 0 0 5px {CONFIG["neon_blue"]};
+        font-size: 1.2rem;
+        font-weight: 900;
+        text-decoration: none !important;
+    }}
 
-    /* 操作ボタン */
+    /* ボタン */
     .stButton > button {{
-        height: 70px !important; border: 4px solid {CONFIG["primary"]} !important;
-        background: rgba(0, 255, 65, 0.1) !important; color: {CONFIG["primary"]} !important;
-        font-family: 'Orbitron' !important; font-size: 1.3rem !important;
+        background: rgba(0, 255, 65, 0.1) !important;
+        color: {CONFIG["primary"]} !important;
+        border: 3px solid {CONFIG["primary"]} !important;
+        height: 70px !important;
+        width: 100% !important;
+        font-family: 'Orbitron' !important;
+        font-size: 1.4rem !important;
+        font-weight: bold !important;
+        letter-spacing: 3px;
+        text-shadow: 0 0 10px {CONFIG["primary"]};
+        transition: 0.2s;
+        position: relative;
+        z-index: 1000;
     }}
-    .stButton > button:hover {{ background: {CONFIG["neon_pink"]} !important; color: white !important; }}
+    .stButton > button:hover {{
+        background: {CONFIG["neon_pink"]} !important;
+        color: white !important;
+        border: 3px solid {CONFIG["neon_pink"]} !important;
+        box-shadow: 0 0 50px {CONFIG["neon_pink"]};
+        transform: translateY(-5px);
+    }}
 
-    @keyframes float {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-30px); }} }}
     header, footer {{ visibility: hidden !important; }}
 </style>
+
+<div class="side-metrics">
+    >> LATENCY: 24ms<br>
+    >> UPLINK: SECURE<br>
+    >> STATUS: MONITORING<br>
+    >> SOURCE: G_INTEL
+</div>
 """, unsafe_allow_html=True)
 
-# --- LOGIC ---
-@st.cache_data(ttl=60)
+# --- データの描画 ---
+st.markdown(f'<div class="title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
+
+@st.cache_data(ttl=1) # デバッグのため一時的にキャッシュを無効化
 def fetch_news():
     q = urllib.parse.quote(CONFIG["query"])
     f = feedparser.parse(f"https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja")
     entries = f.entries
     unique_entries = []
-    seen = set()
+    seen_titles = set()
     for entry in entries:
-        fp = re.sub(r'\s+', '', entry.title)[:20]
-        if fp not in seen:
+        norm_title = re.sub(r'[\s\-｜｜「」『』]', '', entry.title)
+        title_fingerprint = norm_title[:30]
+        if title_fingerprint not in seen_titles:
             unique_entries.append(entry)
-            seen.add(fp)
+            seen_titles.add(title_fingerprint)
+    unique_entries.sort(key=lambda x: x.get('published_parsed') or (0,0,0,0,0,0,0,0,0), reverse=True)
     return unique_entries
-
-# --- RENDERING ---
-st.markdown(f"""
-<div class="header-box">
-    <div class="sat-icon">{CONFIG["editor_avatar"]}</div>
-    <div class="title-main">{CONFIG["site_name"]}</div>
-</div>
-""", unsafe_allow_html=True)
 
 all_items = fetch_news()
 JST = timezone(timedelta(hours=+9), 'JST')
 display_items = all_items[:st.session_state.display_count]
 
 for entry in display_items:
-    dt = datetime.fromtimestamp(time.mktime(entry.published_parsed), timezone.utc).astimezone(JST).strftime('%Y/%m/%d %H:%M') if entry.get('published_parsed') else "2026/--/--"
+    try:
+        ts = time.mktime(entry.published_parsed)
+        dt = datetime.fromtimestamp(ts, timezone.utc).astimezone(JST).strftime('%Y/%m/%d %H:%M')
+    except: dt = "2026/--/-- --:--"
+    
     st.markdown(f"""
     <div class="news-card">
-        <div style="color:{CONFIG['neon_pink']}; font-family:'Roboto Mono'; font-size:1rem; margin-bottom:12px;">
-            <span style="animation: blink 0.5s infinite;">●</span> LIVE_FEED // {dt}
+        <div style="color:{CONFIG['neon_pink']}; font-family:'Orbitron'; font-size:0.9rem; margin-bottom:10px;">
+            <span style="animation: blink 1s infinite;">▶</span> SYNC_TS // {dt} JST
         </div>
-        <a href="{entry.link}" target="_blank">{entry.title}</a>
+        <div><a href="{entry.link}" target="_blank">{entry.title}</a></div>
+        <div style="margin-top:15px; color:rgba(0, 255, 65, 0.7); font-size:0.75rem; font-family:'Roboto Mono'; border-top: 1px solid rgba(0,255,65,0.2); padding-top:10px;">
+            >> INTEL_STATUS: VERIFIED <br>
+            >> ACCESS_LEVEL: UNRESTRICTED
+        </div>
     </div>
+    <style>
+    @keyframes blink {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: 0; }} }}
+    </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<div style="height:50px;"></div>', unsafe_allow_html=True)
-col1, col2 = st.columns([1, 1])
-with col1:
-    if st.button("EXPAND"):
+if st.session_state.display_count < len(all_items):
+    if st.button("[ ADD MORE INTEL ]"):
         st.session_state.display_count += CONFIG["step_display"]
         st.rerun()
-with col2:
-    if st.session_state.display_count > CONFIG["initial_display"]:
-        if st.button("DEFRAG"):
-            st.session_state.display_count = CONFIG["initial_display"]
-            st.rerun()
-
-st.markdown("""<style>@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }</style>""", unsafe_allow_html=True)
