@@ -19,10 +19,11 @@ CONFIG = {
 
 st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 
+# セッション状態の初期化
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: フェードアウト & 折りたたみロジック ---
+# --- CSS: 完璧な視覚制御 ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
@@ -31,55 +32,46 @@ st.markdown(f"""
     .main .block-container {{ max-width: 100% !important; padding: 2rem 5% !important; display: flex; flex-direction: column; align-items: center; }}
     .news-wrapper {{ max-width: 850px; width: 100%; z-index: 100; }}
 
-    /* 右上メトリクスの固定 & フェードアウト設定 */
+    /* スクロール連動型：フェードアウト・ヘッダー */
+    .header-group {{
+        text-align: center;
+        width: 100%;
+        margin-bottom: 40px;
+    }}
+
+    /* 右上メトリクス：ヘッダー群として配置（スクロールで消える） */
     .side-metrics {{
-        position: sticky; top: 40px; margin-left: auto; margin-right: 40px;
-        width: 220px; font-family: 'Roboto Mono'; font-size: 0.85rem; color: {CONFIG["neon_blue"]};
-        opacity: 0.8; z-index: 500; border-right: 4px solid {CONFIG["neon_blue"]};
+        font-family: 'Roboto Mono'; font-size: 0.85rem; color: {CONFIG["neon_blue"]};
+        opacity: 0.8; border-right: 4px solid {CONFIG["neon_blue"]};
         padding-right: 15px; text-align: right; line-height: 1.8;
-    }}
-
-    /* スクロールに合わせて衛星とメトリクスを消す（Streamlitのスクロールに同期） */
-    [data-testid="stVerticalBlock"] > div:first-child {{
-        position: sticky; top: 0; z-index: 1000;
-    }}
-
-    /* 背景（維持） */
-    [data-testid="stAppViewContainer"]::before {{
-        content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background-image: linear-gradient(rgba(0, 255, 65, 0.15) 2px, transparent 2px), linear-gradient(90deg, rgba(0, 255, 65, 0.15) 2px, transparent 2px);
-        background-size: 50px 50px; z-index: 0; animation: grid-pulse 3s ease-in-out infinite alternate;
+        display: inline-block; position: absolute; right: 5%; top: 40px;
     }}
 
     /* タイトル & 衛星 */
-    .title {{ color: #FFFFFF; font-family: 'Orbitron'; font-size: 1.8rem; text-align: center; text-shadow: 0 0 20px {CONFIG["primary"]}; letter-spacing: 10px; padding: 40px 0; }}
-    .satellite {{ font-size: 6rem; text-align: center; filter: drop-shadow(0 0 30px {CONFIG["primary"]}); animation: float 4s ease-in-out infinite; margin-bottom: 30px; }}
+    .title {{ color: #FFFFFF; font-family: 'Orbitron'; font-size: 1.8rem; letter-spacing: 10px; padding: 20px 0; text-shadow: 0 0 20px {CONFIG["primary"]}; }}
+    .satellite {{ font-size: 6rem; filter: drop-shadow(0 0 30px {CONFIG["primary"]}); animation: float 4s ease-in-out infinite; }}
 
-    /* ニュースカード & 折りたたみ演出 */
+    /* ニュースカード */
     .news-card {{
         background: rgba(0, 10, 5, 0.95); border: 1px solid {CONFIG["primary"]}; border-left: 10px solid {CONFIG["primary"]};
-        padding: 30px; margin-bottom: 25px; transition: 0.3s; position: relative;
+        padding: 30px; margin-bottom: 25px; transition: 0.3s;
     }}
-    .news-card:hover {{ border-color: {CONFIG["neon_pink"]}; border-left-color: {CONFIG["neon_pink"]}; transform: scale(1.02); }}
-    .news-card a {{ color: white !important; font-size: 1.3rem; font-weight: 900; text-decoration: none !important; text-shadow: 0 0 5px {CONFIG["neon_blue"]}; display: block; }}
+    .news-card:hover {{ border-color: {CONFIG["neon_pink"]}; border-left-color: {CONFIG["neon_pink"]}; transform: scale(1.01); }}
+    .news-card a {{ color: white !important; font-size: 1.3rem; font-weight: 900; text-decoration: none !important; text-shadow: 0 0 5px {CONFIG["neon_blue"]}; }}
 
-    /* 折りたたみボタン（右端） */
-    .collapse-btn {{
-        position: absolute; right: 10px; top: 10px; font-family: 'Roboto Mono';
-        font-size: 0.7rem; color: {CONFIG["primary"]}; cursor: pointer; border: 1px solid {CONFIG["primary"]};
-        padding: 2px 5px; opacity: 0.5;
-    }}
-    .collapse-btn:hover {{ opacity: 1; color: {CONFIG["neon_pink"]}; border-color: {CONFIG["neon_pink"]}; }}
-
-    /* 下部：EXPANDボタン */
+    /* 下部コンソール：ボタン並列配置 */
     .stButton > button {{
-        background: transparent !important; color: {CONFIG["primary"]} !important; border: 4px solid {CONFIG["primary"]} !important;
-        width: 100% !important; max-width: 850px !important; height: 80px !important; font-family: 'Orbitron' !important;
-        font-size: 1.8rem !important; transition: 0.3s !important; margin-top: 30px;
+        background: transparent !important; color: {CONFIG["primary"]} !important; border: 3px solid {CONFIG["primary"]} !important;
+        height: 60px !important; font-family: 'Orbitron' !important; font-size: 1.2rem !important;
+        transition: 0.3s !important; width: 100% !important;
     }}
-    .stButton > button:hover {{ background: {CONFIG["neon_pink"]} !important; color: white !important; box-shadow: 0 0 60px {CONFIG["neon_pink"]} !important; }}
+    .stButton > button:hover {{ background: {CONFIG["neon_pink"]} !important; color: white !important; border-color: {CONFIG["neon_pink"]} !important; }}
 
-    @keyframes grid-pulse {{ 0% {{ opacity: 0.1; }} 100% {{ opacity: 0.6; }} }}
+    /* 特殊：DEFRAGMENTボタン（縮小）の色味変更 */
+    div[data-testid="column"]:nth-child(2) .stButton > button {{
+        color: {CONFIG["neon_blue"]} !important; border-color: {CONFIG["neon_blue"]} !important;
+    }}
+
     @keyframes float {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-20px); }} }}
     header, footer {{ visibility: hidden !important; }}
 </style>
@@ -102,66 +94,53 @@ def fetch_news():
 
 # --- RENDERING ---
 
-# ヘッダーエリア（スクロールで消える）
-header_container = st.container()
-with header_container:
-    st.markdown(f'<div class="title">{CONFIG["site_name"]}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="satellite">{CONFIG["editor_avatar"]}</div>', unsafe_allow_html=True)
-    # メトリクスをここに配置
-    st.markdown(f"""
+# 1. ヘッダーエリア（スクロールで衛星と共にフェードアウト）
+st.markdown(f"""
+<div class="header-group">
     <div class="side-metrics">
         >> LATENCY: 24ms<br>
         >> UPLINK: SECURE<br>
         >> STATUS: MONITORING<br>
         >> SOURCE: G_INTEL
     </div>
-    """, unsafe_allow_html=True)
+    <div class="satellite">{CONFIG["editor_avatar"]}</div>
+    <div class="title">{CONFIG["site_name"]}</div>
+</div>
+""", unsafe_allow_html=True)
 
+# 2. ニュースリスト
 st.markdown('<div class="news-wrapper">', unsafe_allow_html=True)
-
 all_items = fetch_news()
 JST = timezone(timedelta(hours=+9), 'JST')
 display_items = all_items[:st.session_state.display_count]
 
-for i, entry in enumerate(display_items):
+for entry in display_items:
     dt = "2026/--/--"
     if entry.get('published_parsed'):
         dt = datetime.fromtimestamp(time.mktime(entry.published_parsed), timezone.utc).astimezone(JST).strftime('%Y/%m/%d %H:%M')
     
-    # 折りたたみ管理用のキーを生成
-    col_key = f"collapsed_{i}"
-    if col_key not in st.session_state:
-        st.session_state[col_key] = False
-
-    # ニュースカード表示
-    if not st.session_state[col_key]:
-        # 通常表示
-        st.markdown(f"""
-        <div class="news-card">
-            <div style="color:{CONFIG['neon_pink']}; font-family:'Orbitron'; font-size:0.9rem; margin-bottom:10px;">
-                ▶ SYNC_TS // {dt} JST
-            </div>
-            <a href="{entry.link}" target="_blank">{entry.title}</a>
+    st.markdown(f"""
+    <div class="news-card">
+        <div style="color:{CONFIG['neon_pink']}; font-family:'Roboto Mono'; font-size:0.9rem; margin-bottom:10px;">
+            ▶ SYNC_TS // {dt} JST
         </div>
-        """, unsafe_allow_html=True)
-        if st.button(f"[-] SHRINK_DATA_{i}", key=f"btn_{i}"):
-            st.session_state[col_key] = True
-            st.rerun()
-    else:
-        # 折りたたみ表示
-        st.markdown(f"""
-        <div style="background:rgba(0,255,65,0.05); border:1px dashed {CONFIG['primary']}; padding:10px; margin-bottom:10px; font-family:'Roboto Mono'; font-size:0.8rem; color:{CONFIG['primary']};">
-            [DATA_MINIMIZED] // {entry.title[:30]}...
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button(f"[+] RESTORE_{i}", key=f"btn_{i}"):
-            st.session_state[col_key] = False
-            st.rerun()
-
+        <a href="{entry.link}" target="_blank">{entry.title}</a>
+    </div>
+    """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 下部ボタン
-if st.session_state.display_count < len(all_items):
+# 3. ボトム・コントロール・コンソール
+st.write("---")
+col1, col2 = st.columns([2, 1])
+
+with col1:
     if st.button("[ EXPAND DATABASE ]"):
         st.session_state.display_count += CONFIG["step_display"]
         st.rerun()
+
+with col2:
+    # 現在の表示数が初期数より多い場合のみ、折り畳み（リセット）ボタンを表示
+    if st.session_state.display_count > CONFIG["initial_display"]:
+        if st.button("[ DEFRAG ]"):
+            st.session_state.display_count = CONFIG["initial_display"]
+            st.rerun()
