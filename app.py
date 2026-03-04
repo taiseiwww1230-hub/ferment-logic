@@ -22,7 +22,7 @@ st.set_page_config(page_title=CONFIG["site_name"], layout="wide")
 if "display_count" not in st.session_state:
     st.session_state.display_count = CONFIG["initial_display"]
 
-# --- CSS: 網目の復元、光線の細量化と頻度調整 ---
+# --- CSS: 網目の色のみを薄い白色へ変更（他は厳守） ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto+Mono:wght@400;700&display=swap');
@@ -33,29 +33,28 @@ st.markdown(f"""
         background: #000201 !important;
     }}
 
-    /* ★復元：背景の網目（グリッド）★ */
+    /* ★修正：網目（グリッド）を薄い白色に変更して視認性を確保★ */
     .stApp {{
         background-image: 
-            linear-gradient(rgba(0, 255, 65, 0.15) 1px, transparent 1px), 
-            linear-gradient(90deg, rgba(0, 255, 65, 0.15) 1px, transparent 1px);
+            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), 
+            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
         background-size: 50px 50px;
         background-attachment: fixed;
     }}
 
-    /* ★修正：細い光線が数秒おきに流れる★ */
+    /* 細い光線（4秒周期）：前回の設定を厳守 */
     .stApp::before {{
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        /* グラデーションを急峻にして「細い線」を実現 */
         background: linear-gradient(to bottom, 
             transparent 48%, 
             rgba(0, 255, 65, 0.4) 50%, 
             transparent 52%);
-        background-size: 100% 200%; /* 描画範囲を狭めて密度を上げる */
+        background-size: 100% 200%;
         z-index: 10; pointer-events: none;
-        animation: scan-slim-flow 4s linear infinite; /* 4秒周期で次々と来訪 */
+        animation: scan-slim-flow 4s linear infinite;
     }}
 
-    /* UI幅、ヘッダー、カード、ボタンのスタイルを厳守（一切変更なし） */
+    /* UI、ヘッダー、カード、ボタン：一切いじらない */
     .main .block-container {{ max-width: 1000px !important; padding-top: 3rem !important; }}
     .header-box {{ text-align: center; margin-bottom: 50px; position: relative; }}
     .title-main {{ color: #FFFFFF; font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 12px; text-shadow: 0 0 20px {CONFIG["primary"]}; margin-top: 25px; }}
@@ -77,7 +76,6 @@ st.markdown(f"""
     }}
     .stButton > button:hover {{ background: {CONFIG["neon_pink"]} !important; color: white !important; border-color: {CONFIG["neon_pink"]} !important; }}
 
-    /* アニメーション定義 */
     @keyframes scan-slim-flow {{ 0% {{ background-position: 0 -100%; }} 100% {{ background-position: 0 100%; }} }}
     @keyframes float {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-20px); }} }}
     header, footer {{ visibility: hidden !important; }}
